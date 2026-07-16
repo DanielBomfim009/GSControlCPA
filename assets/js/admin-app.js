@@ -515,6 +515,7 @@ function renderOverview() {
   const status = totals.totalProfit >= 0 ? "Saudavel" : "Em alerta";
   const statusNote = totals.totalProfit >= 0 ? "Operacao acelerando - resultado consistente." : "A operacao precisa de revisao nas metas com menor retorno.";
   const record = Math.max(data.dailyGoal, totals.totalProfit, 140);
+  const bestNetwork = topNetworks[0];
 
   return `
     <section class="screen-head">
@@ -569,7 +570,7 @@ function renderOverview() {
     </section>
 
     <section class="split-grid admin-overview-grid">
-      <article class="chart-card">
+      <article class="chart-card overview-chart-panel">
         <div class="section-head">
           <div>
             <div class="section-kicker">Lucro - Julho</div>
@@ -586,9 +587,50 @@ function renderOverview() {
           </div>
         </div>
         <div class="canvas-wrap"><canvas id="dashboard-chart" width="980" height="320"></canvas></div>
+        <div class="overview-chart-panel__meta">
+          <div>
+            <small>Metas fechadas</small>
+            <strong>${totals.goalsInSystem}</strong>
+          </div>
+          <div>
+            <small>Operadores</small>
+            <strong>${totals.accountsInSystem}</strong>
+          </div>
+          <div>
+            <small>Lucro apos custos</small>
+            <strong class="money-green">${currency(totals.totalProfit)}</strong>
+          </div>
+        </div>
+        <div class="overview-network-module">
+          <div class="overview-network-module__head">
+            <div>
+              <strong>Top Redes Performance</strong>
+              <p>Distribuicao do lucro por rede</p>
+            </div>
+          </div>
+          <div class="overview-network-module__body">
+            <div class="network-donut">
+              <div class="network-donut__ring"></div>
+              <div class="network-donut__center">${escapeHtml(bestNetwork?.network || "777")}</div>
+            </div>
+            <div class="network-donut__legend">
+              ${topNetworks
+                .map(
+                  (item) => `
+                    <div class="network-donut__item">
+                      <span class="network-donut__dot"></span>
+                      <strong>${escapeHtml(item.network)}</strong>
+                      <span>${currency(item.profit)}</span>
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
+          </div>
+        </div>
       </article>
 
-      <article class="chart-card">
+      <article class="chart-card overview-funnel-panel">
         <div class="section-head">
           <div>
             <div class="section-kicker">Funil da Operacao</div>
@@ -606,64 +648,67 @@ function renderOverview() {
       </article>
     </section>
 
-    <section class="duo-grid">
-      <article class="panel">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">Top Redes Performance</div>
-            <h3>Top redes</h3>
-            <p>Distribuicao do lucro por rede</p>
-          </div>
+    <section class="status-strip">
+      <div class="status-strip__header">
+        <span class="status-dot"></span>
+        <div>
+          <strong>Status: ${status}</strong>
+          <p>${statusNote}</p>
         </div>
-        <div class="signal-list">
-          ${topNetworks.map((item) => renderSignalCard(item.network, currency(item.profit), `${item.goals} meta(s) • ${item.accounts} contas`)).join("")}
+      </div>
+      <div class="status-strip__success">Lucro total acumulado: ${currency(totals.totalProfit)}</div>
+    </section>
+
+    <section class="duo-grid overview-lower-grid">
+      <article class="panel overview-reading-panel">
+        <div class="section-kicker">Leitura da operacao</div>
+        <div class="overview-reading-panel__grid">
+          <div>
+            <small>Melhor rede</small>
+            <strong>${escapeHtml(bestNetwork?.network || "—")}</strong>
+            <span>${bestNetwork ? `${currency(bestNetwork.profit)}/meta` : "Sem leitura ainda"}</span>
+          </div>
+          <div>
+            <small>Risco operacional</small>
+            <strong>${totals.totalProfit >= 0 ? "Nenhum" : "Moderado"}</strong>
+            <span>${totals.totalProfit >= 0 ? "Todas as redes positivas" : "Existem metas abaixo da linha."}</span>
+          </div>
         </div>
       </article>
 
-      <article class="panel">
-        <div class="section-head">
+      <article class="panel overview-forecast-panel">
+        <div class="section-kicker">Previsao</div>
+        <div class="overview-forecast-panel__grid">
           <div>
-            <div class="section-kicker">Status atual da cooperacao</div>
-            <h3>${status}</h3>
-            <p>${statusNote}</p>
+            <small>Media por meta</small>
+            <strong>${currency(totals.averagePerGoal)}</strong>
           </div>
-          <span class="tiny-badge ${totals.totalProfit >= 0 ? "tiny-badge--good" : ""}">${totals.totalProfit >= 0 ? "Sem risco" : "Revisar"}</span>
-        </div>
-        <div class="mini-grid">
-          ${renderMiniPanel("Lucro total acumulado", currency(totals.totalProfit), "Base consolidada da operacao")}
-          ${renderMiniPanel("Media por meta", currency(totals.averagePerGoal), `${totals.goalsInSystem} metas consideradas`)}
-          ${renderMiniPanel("Media por conta", currency(totals.averagePerAccount), `${totals.accountsInSystem} contas monitoradas`)}
-          ${renderMiniPanel("Risco operacional", totals.totalProfit >= 0 ? "Nenhum" : "Moderado", `${totals.activeOperations} operacao(oes) ativa(s)`)}
+          <div>
+            <small>Media por conta</small>
+            <strong>${currency(totals.averagePerAccount)}</strong>
+          </div>
+          <div>
+            <small>Projecao - 50 contas</small>
+            <strong>${currency(totals.averagePerAccount * 50)}</strong>
+          </div>
+          <div>
+            <small>Break-even</small>
+            <strong>${Math.max(1, Math.round(data.dailyGoal / Math.max(totals.averagePerAccount || 1, 1)))} contas</strong>
+          </div>
         </div>
       </article>
     </section>
 
     <section class="duo-grid">
-      <article class="panel">
+      <article class="panel slim-panel">
         <div class="section-head">
           <div>
-            <div class="section-kicker">Leitura da operacao</div>
-            <h3>Resumo executivo</h3>
-            <p>Base curta para decisao rapida.</p>
-          </div>
-        </div>
-        <div class="signal-list">
-          ${renderSignalCard("Melhor rede", topNetworks[0]?.network || "—", topNetworks[0] ? `${currency(topNetworks[0].profit)} de lucro final` : "Sem rede com retorno ainda")}
-          ${renderSignalCard("Previsao media por meta", currency(totals.averagePerGoal), "Referencia para acompanhar o ciclo")}
-          ${renderSignalCard("Notificacoes", "Ativar notificacoes", "Mantive essa opcao na estrutura da tela")}
-        </div>
-      </article>
-
-      <article class="activity-card">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">Atividade recente</div>
-            <h3>Ultimos movimentos</h3>
-            <p>Eventos mais recentes da sua base.</p>
+            <h3>Atividade recente</h3>
           </div>
         </div>
         <div class="activity-list">
           ${getRecentActivity()
+            .slice(0, 2)
             .map(
               (item) => `
                 <div class="activity-item">
@@ -678,6 +723,47 @@ function renderOverview() {
             .join("")}
         </div>
       </article>
+
+      <article class="panel slim-panel">
+        <div class="section-head">
+          <div>
+            <h3>Top operadores</h3>
+          </div>
+        </div>
+        <div class="activity-list">
+          ${data.operators
+            .slice()
+            .sort((a, b) => b.profit - a.profit)
+            .slice(0, 2)
+            .map(
+              (item) => `
+                <div class="activity-item">
+                  <div>
+                    <strong>${escapeHtml(item.name)}</strong>
+                    <div class="activity-item__meta">${escapeHtml(item.network)} • ${item.goalPct}% da meta</div>
+                  </div>
+                  <span class="money-green">${currency(item.profit)}</span>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+      </article>
+    </section>
+
+    <section class="trio-grid locked-grid">
+      ${["Previsao inteligente", "Ranking de redes", "Alertas estrategicos"]
+        .map(
+          (title) => `
+            <article class="panel locked-card">
+              <div class="locked-card__icon"></div>
+              <strong>${title}</strong>
+              <p>Recurso bloqueado no modo trial. Mantido apenas como espelho visual da interface de referencia.</p>
+              <button class="button button--ghost" type="button">Seja PRO</button>
+            </article>
+          `
+        )
+        .join("")}
     </section>
   `;
 }
@@ -741,15 +827,12 @@ function renderMyOperation() {
       </div>
     </section>
 
-    <section class="duo-grid">
-      <article class="panel section-panel">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">Operacoes ativas</div>
-            <h3>${activeOperations.length} meta(s) em andamento</h3>
-            <p>Estrutura pronta para abrirmos cada meta individualmente.</p>
-          </div>
-        </div>
+    <section class="operation-sections">
+      <div class="section-title-row">
+        <strong>Operacoes ativas</strong>
+        <span class="section-count">${activeOperations.length}</span>
+      </div>
+      <article class="panel section-panel operation-active-panel">
         <div class="operation-card-grid">
           ${activeOperations.length
             ? activeOperations.map((item) => renderOperationCard(item)).join("")
@@ -757,14 +840,11 @@ function renderMyOperation() {
         </div>
       </article>
 
+      <div class="section-title-row">
+        <strong>Operacoes encerradas</strong>
+        <span class="section-count">${closedOperations.length}</span>
+      </div>
       <article class="panel section-panel">
-        <div class="section-head">
-          <div>
-            <div class="section-kicker">Operacoes encerradas</div>
-            <h3>${closedOperations.length} meta(s) finalizadas</h3>
-            <p>Historico resumido para comparacao de resultado final.</p>
-          </div>
-        </div>
         <div class="activity-list">
           ${closedOperations.length
             ? closedOperations
@@ -783,6 +863,52 @@ function renderMyOperation() {
             : `<div class="empty-state compact">Nenhuma operacao encerrada ainda.</div>`}
         </div>
       </article>
+
+      <div class="section-title-row">
+        <strong>Insights da operacao</strong>
+      </div>
+      <section class="trio-grid operation-insights-grid">
+        <article class="panel insight-card">
+          <small>Melhor meta</small>
+          <strong>${escapeHtml(closedOperations[0]?.title || activeOperations[0]?.title || "Sem meta")}</strong>
+          <span>${currency(Math.max(...operations.map((item) => item.profit), 0))}</span>
+        </article>
+        <article class="panel insight-card">
+          <small>Maior prejuizo</small>
+          <strong>${operations.some((item) => item.loss > 0) ? currency(Math.max(...operations.map((item) => item.loss), 0)) : "Nenhum prejuizo"}</strong>
+          <span>Operacao no azul</span>
+        </article>
+        <article class="panel insight-card">
+          <small>Melhor rede</small>
+          <strong>${escapeHtml(getTopNetworks()[0]?.network || "777")}</strong>
+          <span>${currency(getTopNetworks()[0]?.profit || 0)}</span>
+        </article>
+      </section>
+
+      <div class="section-title-row">
+        <strong>Atividade em tempo real</strong>
+      </div>
+      <article class="panel section-panel">
+        <div class="section-head">
+          <div></div>
+        </div>
+        <div class="activity-list">
+          ${getRecentActivity()
+            .slice(0, 3)
+            .map(
+              (item) => `
+                <div class="activity-item">
+                  <div>
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <div class="activity-item__meta">${escapeHtml(item.description)}</div>
+                  </div>
+                  <span class="activity-item__time">${escapeHtml(item.time)}</span>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+      </article>
     </section>
   `;
 }
@@ -796,14 +922,14 @@ function renderOperationCard(operation) {
       </div>
       <h4>${escapeHtml(operation.title)}</h4>
       <p>${escapeHtml(operation.platform)} • ${operation.accountsTarget} contas</p>
-      <div class="operation-card__stats">
-        <span>Contas ${operation.accountsCreated}/${operation.accountsTarget}</span>
-        <span>Remessas ${operation.remessas.length}</span>
-        <span>Lucro ${currency(operation.profit)}</span>
+      <div class="operation-card__reference-grid">
+        <div><small>Contas</small><strong>${operation.accountsCreated}/${operation.accountsTarget}</strong></div>
+        <div><small>Remessas</small><strong>${operation.remessas.length}</strong></div>
+        <div><small>Lucro atual</small><strong class="money-green">${currency(operation.profit)}</strong></div>
       </div>
+      <div class="operation-card__progress-label">Progresso <span>${operationProgress(operation)}%</span></div>
       <div class="progress"><span style="width:${operationProgress(operation)}%"></span></div>
       <div class="operation-card__footer">
-        <span>Progresso ${operationProgress(operation)}%</span>
         <button class="button button--ghost" type="button" data-operation-open="${operation.id}">Abrir operacao</button>
       </div>
     </article>
