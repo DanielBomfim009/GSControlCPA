@@ -33,6 +33,221 @@
   --text-hero: 2.05rem;
 }
 
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-tab {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.admin-tab.is-active {
+  color: white;
+  border-color: rgba(255, 86, 70, 0.6);
+  background: linear-gradient(180deg, rgba(255, 82, 66, 0.18), rgba(255, 82, 66, 0.08));
+  box-shadow: 0 14px 28px rgba(255, 82, 66, 0.16);
+}
+
+.admin-hero,
+.daily-goal-card,
+.operation-summary-card,
+.admin-placeholder {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(19, 23, 31, 0.98), rgba(12, 15, 20, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.admin-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px;
+}
+
+.admin-hero h2 {
+  margin: 8px 0 8px;
+  font-size: 2rem;
+}
+
+.admin-hero p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 720px;
+}
+
+.admin-hero__chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tiny-badge--good,
+.tiny-badge--live {
+  border-color: rgba(41, 212, 103, 0.22);
+  background: rgba(41, 212, 103, 0.1);
+  color: #8ff0b2;
+}
+
+.daily-goal-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 22px;
+  border-color: rgba(255, 86, 70, 0.22);
+  background: radial-gradient(circle at top right, rgba(255, 80, 64, 0.16), transparent 32%),
+    linear-gradient(180deg, rgba(82, 20, 20, 0.95), rgba(48, 10, 12, 0.92));
+}
+
+.daily-goal-card__copy strong,
+.operation-summary-card__value {
+  display: block;
+  margin-top: 6px;
+  font-size: 2rem;
+  line-height: 1;
+  color: #f7f9ff;
+}
+
+.daily-goal-card__copy p {
+  margin: 10px 0 0;
+  color: #f3b4b1;
+}
+
+.admin-overview-grid {
+  align-items: start;
+}
+
+.admin-funnel {
+  gap: 12px;
+}
+
+.admin-funnel__card,
+.signal-card,
+.mini-panel,
+.kpi-row,
+.operation-card {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-funnel__card {
+  padding: 14px 16px;
+}
+
+.admin-funnel__card span,
+.mini-panel small,
+.kpi-row small {
+  display: block;
+  color: var(--muted-2);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.admin-funnel__card strong,
+.signal-card span,
+.mini-panel strong,
+.kpi-row strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.signal-card,
+.mini-panel,
+.kpi-row {
+  padding: 16px;
+}
+
+.signal-card strong {
+  display: block;
+  color: white;
+}
+
+.signal-card small,
+.mini-panel span,
+.kpi-row span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.operation-summary-card {
+  padding: 22px;
+}
+
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.operation-card-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.operation-card {
+  padding: 18px;
+}
+
+.operation-card__head,
+.operation-card__footer,
+.operation-card__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.operation-card h4 {
+  margin: 14px 0 6px;
+  font-size: 1.18rem;
+}
+
+.operation-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.operation-card__stats {
+  margin: 16px 0 14px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.operation-card__footer {
+  margin-top: 14px;
+}
+
+.admin-placeholder {
+  padding: 28px;
+}
+
+@media (max-width: 900px) {
+  .admin-hero,
+  .daily-goal-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 *,
 *::before,
 *::after {

@@ -6,7 +6,7 @@
     <title>GS Control CPA | Control OS</title>
     <meta
       name="description"
-      content="Painel operacional privado com visual premium, dados locais e gestão completa de operadores, redes, metas, finanças e custos."
+      content="Painel operacional privado com visual premium, dados locais e gestao centralizada da operacao."
     />
     <meta name="theme-color" content="#0b0d12" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,7 +23,7 @@
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="sidebar__head">
-          <button class="brand-button" data-action="go-home" aria-label="Ir para dashboard">
+          <button class="brand-button" data-action="go-home" aria-label="Ir para admin">
             <span class="brand-button__mark">
               <img src="assets/brand/gs-symbol.svg" alt="GS Control" class="brand-button__logo" />
             </span>
@@ -36,74 +36,10 @@
 
         <nav class="nav-groups">
           <div class="nav-group">
-            <p class="nav-group__label">Principal</p>
-            <button class="nav-link is-active" data-section="dashboard" aria-label="Abrir Dashboard">
+            <p class="nav-group__label">Painel</p>
+            <button class="nav-link is-active" data-section="admin" aria-label="Abrir Admin">
               <span class="nav-link__icon" data-icon="dashboard"></span>
-              <span class="nav-link__text">Dashboard</span>
-            </button>
-            <button class="nav-link" data-section="meu-dia" aria-label="Abrir Meu Dia">
-              <span class="nav-link__icon" data-icon="sun"></span>
-              <span class="nav-link__text">Meu Dia</span>
-            </button>
-            <button class="nav-link" data-section="timeline" aria-label="Abrir Timeline">
-              <span class="nav-link__icon" data-icon="activity"></span>
-              <span class="nav-link__text">Timeline</span>
-            </button>
-            <button class="nav-link" data-section="favoritos" aria-label="Abrir Favoritos">
-              <span class="nav-link__icon" data-icon="star"></span>
-              <span class="nav-link__text">Favoritos</span>
-            </button>
-          </div>
-
-          <div class="nav-group">
-            <p class="nav-group__label">Operação</p>
-            <button class="nav-link" data-section="operadores" aria-label="Abrir Operadores">
-              <span class="nav-link__icon" data-icon="users"></span>
-              <span class="nav-link__text">Operadores</span>
-            </button>
-            <button class="nav-link" data-section="gerentes" aria-label="Abrir Gerentes">
-              <span class="nav-link__icon" data-icon="user-cog"></span>
-              <span class="nav-link__text">Gerentes</span>
-            </button>
-            <button class="nav-link" data-section="redes" aria-label="Abrir Redes">
-              <span class="nav-link__icon" data-icon="network"></span>
-              <span class="nav-link__text">Redes</span>
-            </button>
-            <button class="nav-link" data-section="plataformas" aria-label="Abrir Plataformas">
-              <span class="nav-link__icon" data-icon="layers"></span>
-              <span class="nav-link__text">Plataformas</span>
-            </button>
-            <button class="nav-link" data-section="metas" aria-label="Abrir Metas">
-              <span class="nav-link__icon" data-icon="target"></span>
-              <span class="nav-link__text">Metas</span>
-            </button>
-          </div>
-
-          <div class="nav-group">
-            <p class="nav-group__label">Financeiro</p>
-            <button class="nav-link" data-section="financeiro" aria-label="Abrir Financeiro">
-              <span class="nav-link__icon" data-icon="banknote"></span>
-              <span class="nav-link__text">Financeiro</span>
-            </button>
-            <button class="nav-link" data-section="custos" aria-label="Abrir Custos">
-              <span class="nav-link__icon" data-icon="receipt"></span>
-              <span class="nav-link__text">Custos</span>
-            </button>
-            <button class="nav-link" data-section="pix" aria-label="Abrir PIX">
-              <span class="nav-link__icon" data-icon="wallet"></span>
-              <span class="nav-link__text">PIX</span>
-            </button>
-            <button class="nav-link" data-section="remessas" aria-label="Abrir Remessas">
-              <span class="nav-link__icon" data-icon="repeat"></span>
-              <span class="nav-link__text">Remessas</span>
-            </button>
-          </div>
-
-          <div class="nav-group">
-            <p class="nav-group__label">Inteligência</p>
-            <button class="nav-link" data-section="relatorios" aria-label="Abrir Relatórios">
-              <span class="nav-link__icon" data-icon="chart"></span>
-              <span class="nav-link__text">Relatórios</span>
+              <span class="nav-link__text">Admin</span>
             </button>
           </div>
         </nav>
@@ -112,8 +48,8 @@
           <div class="plan-card">
             <div class="plan-card__dot"></div>
             <div>
-              <strong>Plano Enterprise</strong>
-              <small>Ativo • renova em 24 dias</small>
+              <strong>Operacao em tempo real</strong>
+              <small id="sidebar-updated-at">Atualizado automaticamente</small>
             </div>
           </div>
 
@@ -138,10 +74,10 @@
             <input
               id="global-search"
               type="search"
-              placeholder="Pesquisar operadores, redes, plataformas..."
+              placeholder="Pesquisar metas, redes e operacoes..."
               autocomplete="off"
             />
-            <span class="searchbar__shortcut">⌘K</span>
+            <span class="searchbar__shortcut">Ctrl K</span>
           </div>
 
           <div class="topbar__actions">
@@ -172,15 +108,15 @@
 
         <section class="page-header">
           <div class="page-header__copy">
-            <div class="breadcrumb" id="breadcrumb">Principal • Dashboard</div>
-            <h1 id="page-title">Dashboard</h1>
-            <p id="page-description">Como está sua operação agora.</p>
+            <div class="breadcrumb" id="breadcrumb">Admin • Visao geral</div>
+            <h1 id="page-title">Admin</h1>
+            <p id="page-description">Controle enxuto da operacao em tempo real.</p>
           </div>
 
           <div class="page-header__actions">
             <button class="range-chip" data-action="cycle-range">
               <span data-icon="calendar"></span>
-              <span id="range-label">30 dias</span>
+              <span id="range-label">Mes</span>
             </button>
             <div id="section-actions"></div>
           </div>
@@ -205,11 +141,11 @@
             Categoria <span class="required-mark">*</span>
             <select id="cost-type" required>
               <option value="Marketing">Marketing</option>
-              <option value="Salários">Salários</option>
+              <option value="Salarios">Salarios</option>
               <option value="Software">Software</option>
               <option value="Infra">Infra</option>
               <option value="Impostos">Impostos</option>
-              <option value="Serviços">Serviços</option>
+              <option value="Servicos">Servicos</option>
             </select>
           </label>
 
@@ -237,7 +173,7 @@
               <option value="PIX">PIX</option>
               <option value="TED">TED</option>
               <option value="Boleto">Boleto</option>
-              <option value="Cartão">Cartão</option>
+              <option value="Cartao">Cartao</option>
             </select>
           </label>
 
@@ -251,7 +187,7 @@
           </label>
 
           <label class="form-grid__full">
-            Descrição
+            Descricao
             <textarea id="cost-note" rows="4" placeholder="Descreva o custo"></textarea>
           </label>
         </div>
@@ -268,9 +204,9 @@
         <div class="dialog__header">
           <div>
             <p class="dialog__eyebrow">Remessas</p>
-            <h2>Nova operação</h2>
+            <h2>Nova operacao</h2>
           </div>
-          <button type="button" class="dialog-close" data-close-dialog="remessa-dialog" aria-label="Fechar modal de operação">×</button>
+          <button type="button" class="dialog-close" data-close-dialog="remessa-dialog" aria-label="Fechar modal de operacao">×</button>
         </div>
 
         <div class="form-grid">
@@ -300,7 +236,7 @@
           <label>
             Status <span class="required-mark">*</span>
             <select id="remessa-status" required>
-              <option value="concluida">Concluída</option>
+              <option value="concluida">Concluida</option>
               <option value="processando">Trabalhando</option>
               <option value="pendente">Pendente</option>
             </select>
@@ -322,20 +258,20 @@
             <input id="remessa-roi" type="number" step="0.1" placeholder="Ex: 118.7" required />
           </label>
           <label class="form-grid__full">
-            Observação
+            Observacao
             <textarea id="remessa-note" rows="4" placeholder="Anote algum detalhe importante"></textarea>
           </label>
         </div>
 
         <div class="dialog__footer">
           <button type="button" class="button button--ghost" data-close-dialog="remessa-dialog">Cancelar</button>
-          <button type="submit" class="button button--primary">Salvar operação</button>
+          <button type="submit" class="button button--primary">Salvar operacao</button>
         </div>
       </form>
     </dialog>
 
     <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="assets/js/app.js?v=20260716-7" type="module"></script>
+    <script src="assets/js/admin-app.js?v=20260716-8" type="module"></script>
   </body>
 </html>
