@@ -1,149 +1,368 @@
 {
+  "version": "2026.07.gs-control-cpa.v2",
   "brand": {
     "name": "GS Control CPA",
-    "tagline": "Central privada de operacoes, leitura de resultado e controle local"
+    "tagline": "identidade própria, dados locais e leitura operacional de alta clareza"
   },
   "profile": {
     "owner": "Daniel Bomfim",
-    "updatedAt": "2026-07-16 09:40"
+    "workspace": "Núcleo GS",
+    "status": "Operação estável",
+    "updatedAt": "16/07/2026, 10:25"
   },
   "goals": {
-    "daily": 500,
-    "global": 100000,
-    "closed": 6
+    "daily": 1200,
+    "monthly": 45000,
+    "global": 150000,
+    "closed": 14
   },
   "settings": {
-    "perDepositor": 2,
-    "profitShare": 15
+    "perDepositor": 2.5,
+    "profitShare": 12,
+    "operationModel": "Salário + baú com meta diária",
+    "favoriteSlots": ["Fortune Tiger", "Double", "Crash"],
+    "preferredBanks": ["Nubank", "Inter", "Santander"]
   },
   "history": {
-    "profit": [80, 95, 88, 120, 112, 140, 133, 176, 168, 210]
+    "labels": ["08/07", "09/07", "10/07", "11/07", "12/07", "13/07", "14/07", "15/07", "16/07"],
+    "profit": [920, 1080, 1180, 990, 1340, 1420, 1560, 1710, 1840],
+    "revenue": [1880, 2120, 2240, 1970, 2480, 2640, 2780, 2960, 3180],
+    "costs": [420, 440, 410, 460, 470, 490, 510, 530, 560]
   },
   "operators": [
     {
       "name": "Rodrigo Assis",
       "status": "ativo",
-      "network": "777",
-      "score": 92,
-      "deposits": 18,
-      "profit": 420
+      "network": "Atlas Prime",
+      "score": 94,
+      "deposits": 22,
+      "profit": 6420,
+      "closedGoals": 5,
+      "speed": "rápida",
+      "specialty": "escala premium"
     },
     {
       "name": "Ana Beatriz",
       "status": "ativo",
-      "network": "Atlas Black",
-      "score": 84,
-      "deposits": 13,
-      "profit": 330
+      "network": "Blue Seven",
+      "score": 89,
+      "deposits": 18,
+      "profit": 5210,
+      "closedGoals": 4,
+      "speed": "constante",
+      "specialty": "banco e retenção"
     },
     {
       "name": "Diego Pinto",
       "status": "ativo",
-      "network": "777",
-      "score": 79,
-      "deposits": 11,
-      "profit": 280
+      "network": "Atlas Prime",
+      "score": 84,
+      "deposits": 14,
+      "profit": 3980,
+      "closedGoals": 3,
+      "speed": "estável",
+      "specialty": "tráfego aquecido"
     },
     {
       "name": "Larissa Oliveira",
       "status": "pausado",
-      "network": "Prime East",
-      "score": 72,
-      "deposits": 9,
-      "profit": 190
+      "network": "Orion Play",
+      "score": 76,
+      "deposits": 11,
+      "profit": 2570,
+      "closedGoals": 1,
+      "speed": "moderada",
+      "specialty": "reativação"
+    },
+    {
+      "name": "Lucas Ferreira",
+      "status": "ativo",
+      "network": "Blue Seven",
+      "score": 81,
+      "deposits": 13,
+      "profit": 3440,
+      "closedGoals": 2,
+      "speed": "média",
+      "specialty": "abertura de ciclo"
     }
   ],
   "networks": [
     {
-      "name": "777",
-      "score": 88,
-      "profit": 640,
-      "closedGoals": 3,
-      "deposits": 25,
-      "remessas": 6,
-      "accounts": 18
+      "name": "Atlas Prime",
+      "score": 92,
+      "profit": 12480,
+      "closedGoals": 7,
+      "deposits": 38,
+      "remessas": 12,
+      "accounts": 25,
+      "approvalRate": 88,
+      "risk": "baixo",
+      "recommendation": "Manter volume e concentrar operadores mais fortes nesta rede."
     },
     {
-      "name": "Atlas Black",
-      "score": 76,
-      "profit": 360,
+      "name": "Blue Seven",
+      "score": 84,
+      "profit": 8760,
+      "closedGoals": 5,
+      "deposits": 31,
+      "remessas": 9,
+      "accounts": 18,
+      "approvalRate": 81,
+      "risk": "moderado",
+      "recommendation": "Escalar com cautela e revisar janelas de saque no fim da tarde."
+    },
+    {
+      "name": "Orion Play",
+      "score": 73,
+      "profit": 4280,
       "closedGoals": 2,
       "deposits": 16,
-      "remessas": 3,
-      "accounts": 11
+      "remessas": 5,
+      "accounts": 10,
+      "approvalRate": 75,
+      "risk": "moderado",
+      "recommendation": "Usar como rede auxiliar até recuperar consistência e aprovação."
     },
     {
-      "name": "Prime East",
-      "score": 69,
-      "profit": 212,
+      "name": "Titan Flow",
+      "score": 67,
+      "profit": 2910,
       "closedGoals": 1,
-      "deposits": 10,
-      "remessas": 2,
-      "accounts": 7
+      "deposits": 9,
+      "remessas": 4,
+      "accounts": 7,
+      "approvalRate": 70,
+      "risk": "alto",
+      "recommendation": "Reavaliar volume, limitar exposição e testar apenas operadores disciplinados."
     }
   ],
   "invites": [
     {
       "id": "invite-1",
-      "code": "28469dc4f3ee26bf360a9cf9b323082f5b761581fb4e4fa0",
-      "date": "2026-07-14",
+      "code": "3e4fc29a6b18f8a7d035d017eff55c9a9e88fb22",
+      "date": "2026-07-15",
+      "expiresAt": "2026-07-22",
       "status": "Pendente"
     },
     {
       "id": "invite-2",
-      "code": "5ca7dd5cb128ed8714eb5f8dbccde561374f958a96fa3ea1",
+      "code": "8dfc2c9642a17f928f4f5d81e984ab0b0b723d6e",
       "date": "2026-07-14",
+      "expiresAt": "2026-07-21",
       "status": "Pendente"
     }
   ],
   "remessas": [
     {
-      "id": "REM-9510",
+      "id": "REM-9801",
       "operator": "Rodrigo Assis",
-      "value": 18789,
+      "value": 19650,
       "source": "Nubank",
       "target": "Santander",
-      "date": "2026-07-15",
+      "date": "2026-07-16",
       "status": "concluida",
-      "note": "Primeiro lote da manha"
+      "note": "Lote premium da manhã"
     },
     {
-      "id": "REM-9511",
+      "id": "REM-9802",
       "operator": "Ana Beatriz",
-      "value": 8450,
+      "value": 11320,
       "source": "Inter",
-      "target": "Itau",
+      "target": "Itaú",
       "date": "2026-07-16",
       "status": "processando",
-      "note": "Conciliacao em andamento"
+      "note": "Conciliando duas entradas"
     },
     {
-      "id": "REM-9512",
+      "id": "REM-9803",
       "operator": "Diego Pinto",
-      "value": 5220,
+      "value": 7950,
       "source": "Santander",
       "target": "C6",
-      "date": "2026-07-16",
+      "date": "2026-07-15",
       "status": "pendente",
-      "note": "Esperando aprovacao"
+      "note": "Aguardando autorização"
+    },
+    {
+      "id": "REM-9804",
+      "operator": "Lucas Ferreira",
+      "value": 5480,
+      "source": "PicPay",
+      "target": "Inter",
+      "date": "2026-07-14",
+      "status": "concluida",
+      "note": "Fechamento do ciclo noturno"
     }
   ],
   "costs": [
     {
       "id": "cost-1",
       "type": "Proxy",
-      "value": 49.9,
-      "date": "2026-07-15",
+      "value": 92.5,
+      "date": "2026-07-16",
       "owner": "Daniel Bomfim",
-      "note": "Pacote semanal de proxies"
+      "note": "Pacote diário de proxies rotativas"
     },
     {
       "id": "cost-2",
       "type": "SMS",
-      "value": 18,
+      "value": 38,
       "date": "2026-07-16",
       "owner": "Daniel Bomfim",
-      "note": "Recarga de validacao"
+      "note": "Recarga de validação dos operadores"
+    },
+    {
+      "id": "cost-3",
+      "type": "VPS",
+      "value": 168,
+      "date": "2026-07-13",
+      "owner": "Daniel Bomfim",
+      "note": "Servidor do ciclo principal"
+    },
+    {
+      "id": "cost-4",
+      "type": "Postagem",
+      "value": 124,
+      "date": "2026-07-12",
+      "owner": "Daniel Bomfim",
+      "note": "Criativos patrocinados para reposição"
     }
-  ]
+  ],
+  "pixKeys": [
+    {
+      "id": "pix-1",
+      "alias": "Conta principal",
+      "key": "gs-control@pix.com",
+      "bank": "Nubank",
+      "owner": "Daniel Bomfim",
+      "usage": "alto giro",
+      "status": "Ativa"
+    },
+    {
+      "id": "pix-2",
+      "alias": "Conta reserva",
+      "key": "11.222.333/0001-42",
+      "bank": "Inter",
+      "owner": "Daniel Bomfim",
+      "usage": "contingência",
+      "status": "Ativa"
+    },
+    {
+      "id": "pix-3",
+      "alias": "Conta triagem",
+      "key": "+55 11 99999-1200",
+      "bank": "Santander",
+      "owner": "Daniel Bomfim",
+      "usage": "teste e distribuição",
+      "status": "Em revisão"
+    }
+  ],
+  "pixPolicies": [
+    "Separar chaves por finalidade reduz risco de bloqueio operacional.",
+    "Evitar concentrar grandes volumes na mesma chave por muitas horas seguidas.",
+    "Revisar bancos de apoio antes de picos noturnos e validar status das contas."
+  ],
+  "affiliates": [
+    {
+      "name": "Canal Aurora",
+      "channel": "Telegram",
+      "share": 22,
+      "focus": "tráfego quente",
+      "status": "Ativo"
+    },
+    {
+      "name": "Lume Ads",
+      "channel": "Instagram",
+      "share": 15,
+      "focus": "criativos de conversão",
+      "status": "Ativo"
+    },
+    {
+      "name": "Grid Delta",
+      "channel": "WhatsApp",
+      "share": 9,
+      "focus": "reativação segmentada",
+      "status": "Em revisão"
+    }
+  ],
+  "operatorPolicies": [
+    {
+      "title": "Disciplina de janela",
+      "description": "Cada operador deve respeitar o intervalo operacional previsto para reduzir estresse de conta."
+    },
+    {
+      "title": "Rotina de reporte",
+      "description": "Toda meta fechada precisa ser reportada no mesmo bloco de tempo para manter o painel confiável."
+    },
+    {
+      "title": "Redistribuição de rede",
+      "description": "Rede em alerta só recebe novo volume após duas janelas consecutivas de estabilidade."
+    }
+  ],
+  "alerts": [
+    {
+      "title": "Custo de criativo acima da média",
+      "body": "A categoria Postagem subiu no comparativo semanal e merece reavaliação de retorno.",
+      "level": "Atenção",
+      "tone": "alert"
+    },
+    {
+      "title": "Atlas Prime em destaque",
+      "body": "Melhor rede do ciclo com score 92 e aprovação de 88%.",
+      "level": "Saudável",
+      "tone": "good"
+    },
+    {
+      "title": "Titan Flow exige cautela",
+      "body": "Rede com menor score da base atual e risco acima do restante da operação.",
+      "level": "Crítico",
+      "tone": "danger"
+    }
+  ],
+  "activity": [
+    {
+      "title": "Operação REM-9802 em processamento",
+      "description": "Ana Beatriz segue conciliando uma operação de médio porte.",
+      "time": "há 6 min"
+    },
+    {
+      "title": "Nova meta fechada em Atlas Prime",
+      "description": "Rodrigo encerrou mais um ciclo acima do esperado.",
+      "time": "há 18 min"
+    },
+    {
+      "title": "Custo de proxy atualizado",
+      "description": "Lançamento diário de proxy salvo na base local.",
+      "time": "há 29 min"
+    },
+    {
+      "title": "Lote noturno arquivado",
+      "description": "Operação concluída com registro integral no histórico financeiro.",
+      "time": "há 1 h"
+    }
+  ],
+  "governance": {
+    "maintenance": false,
+    "lastBackup": "16/07/2026, 09:58",
+    "checks": [
+      {
+        "title": "Persistência local",
+        "body": "Base salva corretamente em localStorage e pronta para exportação em JSON.",
+        "status": "OK",
+        "tone": "good"
+      },
+      {
+        "title": "Publicação no GitHub",
+        "body": "Projeto conectado ao GitHub Pages com branch principal sincronizada.",
+        "status": "OK",
+        "tone": "good"
+      },
+      {
+        "title": "Modo manutenção",
+        "body": "Desativado. O painel segue em operação normal para uso interno.",
+        "status": "Normal",
+        "tone": "alert"
+      }
+    ]
+  }
 }

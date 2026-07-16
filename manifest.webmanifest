@@ -3,8 +3,15 @@
   "short_name": "GS Control",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#050608",
-  "theme_color": "#08090d",
-  "description": "Painel operacional privado com HTML, JSON local e uso offline.",
-  "icons": []
+  "background_color": "#071019",
+  "theme_color": "#071019",
+  "description": "Painel operacional privado com identidade exclusiva, JSON local e uso offline.",
+  "icons": [
+    {
+      "src": "assets/brand/gs-symbol.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

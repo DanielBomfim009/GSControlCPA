@@ -1,7 +1,8 @@
-const CACHE_NAME = "gn-atlas-v2";
+const CACHE_NAME = "gs-control-cpa-v2";
 const ASSETS = [
   "./",
   "./index.html",
+  "./assets/brand/gs-symbol.svg",
   "./assets/css/styles.css",
   "./assets/js/app.js",
   "./data/seed.json",
