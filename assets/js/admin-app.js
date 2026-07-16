@@ -414,7 +414,10 @@ function renderShell() {
 
   document.querySelector("#profile-name").textContent = data.profile.owner;
   document.querySelector("#profile-role").textContent = data.profile.role;
-  document.querySelector("#sidebar-updated-at").textContent = `Atualizado ${data.profile.updatedAt}`;
+  const sidebarProfileName = document.querySelector("#sidebar-profile-name");
+  const sidebarProfileMeta = document.querySelector("#sidebar-profile-meta");
+  if (sidebarProfileName) sidebarProfileName.textContent = data.profile.owner;
+  if (sidebarProfileMeta) sidebarProfileMeta.textContent = `${data.profile.role} • ${data.profile.updatedAt}`;
   searchNode.value = ui.search;
 
   const meta = getCurrentMeta();
@@ -511,29 +514,54 @@ function renderOverview() {
   const topNetworks = getTopNetworks();
   const status = totals.totalProfit >= 0 ? "Saudavel" : "Em alerta";
   const statusNote = totals.totalProfit >= 0 ? "Operacao acelerando - resultado consistente." : "A operacao precisa de revisao nas metas com menor retorno.";
+  const record = Math.max(data.dailyGoal, totals.totalProfit, 140);
 
   return `
-    <section class="admin-tabs">
+    <section class="screen-head">
+      <div>
+        <h1>Ola, ${escapeHtml(data.profile.owner)}</h1>
+        <div class="screen-head__meta">
+          <span class="status-dot"></span>
+          <span>Dados em tempo real</span>
+          <span class="screen-pill">${escapeHtml(String(data.profile.role || "FERRO").split("•")[0].trim())}</span>
+          <span class="screen-pill screen-pill--danger">TRIAL • 1 DIA</span>
+        </div>
+      </div>
+      <button class="refresh-bubble" data-action="refresh">Atualizar</button>
+    </section>
+
+    <section class="access-banner">
+      <div class="access-banner__icon">
+        <span data-icon="calendar"></span>
+      </div>
+      <div class="access-banner__copy">
+        <strong>Seu acesso sera bloqueado amanha</strong>
+        <p>Assine hoje para nao perder o controle da sua operacao.</p>
+      </div>
+      <div class="access-banner__countdown">
+        <strong>1</strong>
+        <small>DIA</small>
+      </div>
+      <button class="access-banner__cta">Assinar agora</button>
+    </section>
+
+    <section class="admin-tabs admin-tabs--frame">
       ${renderAdminTabs()}
     </section>
 
-    <section class="admin-hero">
-      <div>
-        <div class="section-kicker">Dados em tempo real</div>
-        <h2>Ola, ${escapeHtml(data.profile.owner)}</h2>
-        <p>Base principal da sua operacao com leitura de lucro, metas, redes e status do momento.</p>
-      </div>
-      <div class="admin-hero__chips">
-        <span class="tiny-badge tiny-badge--good">Online</span>
-        <span class="tiny-badge">${escapeHtml(data.profile.role)}</span>
-      </div>
-    </section>
-
-    <section class="daily-goal-card">
+    <section class="daily-goal-card daily-goal-card--hero">
       <div class="daily-goal-card__copy">
         <div class="section-kicker">Meta do dia</div>
         <strong>${currency(totals.todayProfit)} / ${currency(data.dailyGoal)}</strong>
         <p>Faltam ${currency(Math.max(data.dailyGoal - totals.todayProfit, 0))} para bater sua meta diaria de lucro.</p>
+      </div>
+      <div class="daily-goal-card__track">
+        <div class="daily-goal-card__legend">
+          <span>recorde ${currency(record)}</span>
+        </div>
+        <div class="daily-goal-card__bar">
+          <span style="width:${Math.max(4, Math.min(100, Math.round(percentNumber(totals.todayProfit, Math.max(data.dailyGoal, 1)))))}%"></span>
+        </div>
       </div>
       <button class="icon-chip" data-action="open-daily-goal" aria-label="Editar meta do dia">
         <span data-icon="edit"></span>
@@ -544,9 +572,9 @@ function renderOverview() {
       <article class="chart-card">
         <div class="section-head">
           <div>
-            <div class="section-kicker">Curva de lucro</div>
+            <div class="section-kicker">Lucro - Julho</div>
             <h3>${currency(totals.totalProfit)}</h3>
-            <p>Filtro atual: ${labelRange(ui.range)}</p>
+            <p>Metas fechadas ${totals.goalsInSystem} • Operadores ${totals.accountsInSystem}</p>
           </div>
           <div class="segmented">
             ${adminRangeOption("mes")}
@@ -563,9 +591,9 @@ function renderOverview() {
       <article class="chart-card">
         <div class="section-head">
           <div>
-            <div class="section-kicker">Funil da operacao</div>
+            <div class="section-kicker">Funil da Operacao</div>
             <h3>Resumo geral</h3>
-            <p>Os blocos abaixo acompanham o filtro selecionado.</p>
+            <p>Visao consolidada do sistema</p>
           </div>
         </div>
         <div class="funnel-list admin-funnel">
@@ -582,9 +610,9 @@ function renderOverview() {
       <article class="panel">
         <div class="section-head">
           <div>
-            <div class="section-kicker">Top redes</div>
-            <h3>Performance das redes</h3>
-            <p>As redes com melhor retorno final aparecem primeiro.</p>
+            <div class="section-kicker">Top Redes Performance</div>
+            <h3>Top redes</h3>
+            <p>Distribuicao do lucro por rede</p>
           </div>
         </div>
         <div class="signal-list">
@@ -661,11 +689,39 @@ function renderMyOperation() {
   const summary = getOperationSummary(operations);
 
   return `
-    <section class="admin-tabs">
+    <section class="screen-head">
+      <div>
+        <h1>Ola, ${escapeHtml(data.profile.owner)}</h1>
+        <div class="screen-head__meta">
+          <span class="status-dot"></span>
+          <span>Dados em tempo real</span>
+          <span class="screen-pill">${escapeHtml(String(data.profile.role || "FERRO").split("•")[0].trim())}</span>
+          <span class="screen-pill screen-pill--danger">TRIAL • 1 DIA</span>
+        </div>
+      </div>
+      <button class="refresh-bubble" data-action="refresh">Atualizar</button>
+    </section>
+
+    <section class="access-banner">
+      <div class="access-banner__icon">
+        <span data-icon="calendar"></span>
+      </div>
+      <div class="access-banner__copy">
+        <strong>Seu acesso sera bloqueado amanha</strong>
+        <p>Assine hoje para nao perder o controle da sua operacao.</p>
+      </div>
+      <div class="access-banner__countdown">
+        <strong>1</strong>
+        <small>DIA</small>
+      </div>
+      <button class="access-banner__cta">Assinar agora</button>
+    </section>
+
+    <section class="admin-tabs admin-tabs--frame">
       ${renderAdminTabs()}
     </section>
 
-    <section class="panel operation-summary-card">
+    <section class="panel operation-summary-card operation-summary-card--hero">
       <div class="section-head">
         <div>
           <div class="section-kicker">Centro de operacoes</div>
@@ -686,7 +742,7 @@ function renderMyOperation() {
     </section>
 
     <section class="duo-grid">
-      <article class="panel">
+      <article class="panel section-panel">
         <div class="section-head">
           <div>
             <div class="section-kicker">Operacoes ativas</div>
@@ -701,7 +757,7 @@ function renderMyOperation() {
         </div>
       </article>
 
-      <article class="panel">
+      <article class="panel section-panel">
         <div class="section-head">
           <div>
             <div class="section-kicker">Operacoes encerradas</div>
@@ -733,10 +789,10 @@ function renderMyOperation() {
 
 function renderOperationCard(operation) {
   return `
-    <article class="operation-card">
+    <article class="operation-card operation-card--reference">
       <div class="operation-card__head">
-        <span class="tiny-badge tiny-badge--live">Em andamento</span>
         <strong>${escapeHtml(operation.network)}</strong>
+        <span class="tiny-badge tiny-badge--live">EM ANDAMENTO</span>
       </div>
       <h4>${escapeHtml(operation.title)}</h4>
       <p>${escapeHtml(operation.platform)} • ${operation.accountsTarget} contas</p>
@@ -767,13 +823,13 @@ function renderOperationDetail() {
 
   return `
     <section class="detail-topbar">
-      <button class="button button--ghost" data-action="back-to-operations">
+      <button class="button button--ghost detail-back" data-action="back-to-operations">
         <span data-icon="arrow-left"></span>
         <span>Voltar ao painel</span>
       </button>
     </section>
 
-    <section class="detail-hero">
+    <section class="detail-hero detail-hero--reference">
       <div>
         <div class="detail-hero__title-row">
           <h2>${escapeHtml(operation.title)}</h2>
@@ -1611,6 +1667,16 @@ function iconMarkup(name) {
     calendar: `<rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4"></path><path d="M8 3v4"></path><path d="M3 11h18"></path>`,
     edit: `<path d="M12 20h9"></path><path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z"></path>`,
     "arrow-left": `<path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path>`,
+    users: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>`,
+    network: `<circle cx="6" cy="6" r="2"></circle><circle cx="18" cy="6" r="2"></circle><circle cx="12" cy="18" r="2"></circle><path d="M8 7.5l2.8 7"></path><path d="M16 7.5 13.2 14.5"></path><path d="M8 6h8"></path>`,
+    banknote: `<rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M7 10h.01"></path><path d="M17 14h.01"></path>`,
+    receipt: `<path d="M4 3h16v18l-2.5-1.5L15 21l-2.5-1.5L10 21l-2.5-1.5L5 21 4 20V3z"></path><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path>`,
+    wallet: `<path d="M3 7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1H5a2 2 0 0 0-2 2V7z"></path><path d="M3 10a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7z"></path><path d="M17 13h.01"></path>`,
+    shield: `<path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"></path>`,
+    star: `<path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9L12 3z"></path>`,
+    bolt: `<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"></path>`,
+    send: `<path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path>`,
+    mic: `<path d="M12 18a4 4 0 0 0 4-4V8a4 4 0 0 0-8 0v6a4 4 0 0 0 4 4z"></path><path d="M19 10v4a7 7 0 0 1-14 0v-4"></path><path d="M12 21v-3"></path>`,
   };
   return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.dashboard}</svg>`;
 }

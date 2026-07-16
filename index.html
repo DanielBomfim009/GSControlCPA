@@ -36,22 +36,68 @@
 
         <nav class="nav-groups">
           <div class="nav-group">
-            <p class="nav-group__label">Painel</p>
             <button class="nav-link is-active" data-section="admin" aria-label="Abrir Admin">
               <span class="nav-link__icon" data-icon="dashboard"></span>
               <span class="nav-link__text">Admin</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="users"></span>
+              <span class="nav-link__text">Operadores</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="network"></span>
+              <span class="nav-link__text">Redes</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="banknote"></span>
+              <span class="nav-link__text">Faturamento</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="receipt"></span>
+              <span class="nav-link__text">Custos</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="wallet"></span>
+              <span class="nav-link__text">Chaves PIX</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="users"></span>
+              <span class="nav-link__text">Afiliados</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="shield"></span>
+              <span class="nav-link__text">Assinatura</span>
+            </button>
+            <button class="nav-link nav-link--muted" type="button">
+              <span class="nav-link__icon" data-icon="star"></span>
+              <span class="nav-link__text">Slots Premium</span>
+              <span class="nav-link__tag">PRO</span>
+            </button>
+            <button class="nav-link nav-link--accent" type="button">
+              <span class="nav-link__icon" data-icon="bolt"></span>
+              <span class="nav-link__text">Loja Proxy</span>
+              <span class="nav-link__tag nav-link__tag--accent">PARCEIRO</span>
+            </button>
+            <button class="nav-link nav-link--child" type="button">
+              <span class="nav-link__text">Minhas Proxies</span>
+            </button>
+            <button class="nav-link nav-link--child" type="button">
+              <span class="nav-link__text">Tutorial</span>
+            </button>
+            <button class="nav-link nav-link--child" type="button">
+              <span class="nav-link__text">Network</span>
+              <span class="nav-link__tag nav-link__tag--new">NOVO</span>
+            </button>
+            <button class="nav-link nav-link--child" type="button">
+              <span class="nav-link__text">Premiacoes</span>
             </button>
           </div>
         </nav>
 
         <div class="sidebar__foot">
-          <div class="plan-card">
-            <div class="plan-card__dot"></div>
-            <div>
-              <strong>Operacao em tempo real</strong>
-              <small id="sidebar-updated-at">Atualizado automaticamente</small>
-            </div>
-          </div>
+          <button class="sidebar-pro-button" type="button">Desbloquear PRO</button>
+          <div class="sidebar-trial-note">• Trial - 3 dias</div>
+          <button class="sidebar-alert-button" type="button">Ativar notificacoes</button>
 
           <div class="sidebar-tools">
             <button id="import-button" class="side-mini">Importar</button>
@@ -64,6 +110,13 @@
             <span class="sidebar-collapse__icon" data-icon="chevrons-left"></span>
             <span class="sidebar-collapse__text">Recolher</span>
           </button>
+
+          <div class="sidebar-profile">
+            <div class="sidebar-profile__label">Meu perfil</div>
+            <strong id="sidebar-profile-name">Daniel Bomfim</strong>
+            <small id="sidebar-profile-meta">daniel@example.com</small>
+            <button class="sidebar-logout" type="button">Sair</button>
+          </div>
         </div>
       </aside>
 
@@ -124,6 +177,32 @@
 
         <section id="app-content" class="content"></section>
       </main>
+    </div>
+
+    <div class="trial-bar">
+      <div>
+        <strong>Ultimo dia de trial</strong>
+        <span>Garanta seu acesso antes de expirar e nao perca nenhuma operacao</span>
+      </div>
+      <div class="trial-bar__actions">
+        <span>R$ 59,90 / mes</span>
+        <button class="button button--primary" type="button">Assinar agora</button>
+      </div>
+    </div>
+
+    <div class="floating-dock">
+      <button class="floating-dock__button" type="button">
+        <span data-icon="send"></span>
+      </button>
+      <button class="floating-dock__button" type="button">
+        <span data-icon="mic"></span>
+      </button>
+      <button class="floating-dock__button" type="button">
+        <span data-icon="bell"></span>
+      </button>
+      <button class="floating-dock__button floating-dock__button--primary" type="button">
+        <span data-icon="message"></span>
+      </button>
     </div>
 
     <dialog id="cost-dialog" class="dialog">
