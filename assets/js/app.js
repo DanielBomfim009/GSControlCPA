@@ -392,6 +392,8 @@ function renderSection() {
 function renderDashboard() {
   const financial = getFinancialSummary();
   const activeOps = data.operators.filter((item) => item.status !== "offline").length;
+  const topNetwork = [...data.networks].sort((a, b) => b.profit - a.profit)[0];
+  const topOperator = [...data.operators].sort((a, b) => b.profit - a.profit)[0];
 
   return `
     <section class="metrics-grid">
@@ -433,10 +435,18 @@ function renderDashboard() {
       })}
     </section>
 
+    <section class="insight-strip">
+      ${renderInsightPill("Melhor rede", topNetwork.name, `${compactCurrency(topNetwork.profit)} em lucro consolidado`)}
+      ${renderInsightPill("Operador líder", topOperator.name, `${currency(topOperator.profit)} • ROI ${topOperator.roi}%`)}
+      ${renderInsightPill("Margem operacional", `${financial.margin}%`, `Conversão atual em ${financial.conversion}% da base ativa`)}
+      ${renderInsightPill("Pressão de custo", `${percent(financial.costs, financial.revenue)}%`, "Peso do custo sobre a receita consolidada")}
+    </section>
+
     <section class="split-grid">
       <article class="chart-card">
         <div class="section-head">
           <div>
+            <div class="section-kicker">Centro de comando</div>
             <h2>Curva de Performance</h2>
             <p>Lucro, receita e custos consolidados</p>
           </div>
@@ -453,6 +463,7 @@ function renderDashboard() {
       <article class="chart-card">
         <div class="section-head">
           <div>
+            <div class="section-kicker">Ciclo operacional</div>
             <h2>Funil Operacional</h2>
             <p>Fluxo dos operadores no ciclo</p>
           </div>
@@ -471,6 +482,7 @@ function renderDashboard() {
       <article class="panel">
         <div class="section-head">
           <div>
+            <div class="section-kicker">Monitoramento</div>
             <h3>Alertas prioritários</h3>
             <p>Nada acumulando sem revisão</p>
           </div>
@@ -493,6 +505,7 @@ function renderDashboard() {
       <article class="activity-card">
         <div class="section-head">
           <div>
+            <div class="section-kicker">Tempo real</div>
             <h3>Alertas & Atividades</h3>
             <p>Tempo real</p>
           </div>
@@ -512,6 +525,39 @@ function renderDashboard() {
               `
             )
             .join("")}
+        </div>
+      </article>
+    </section>
+
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Leitura do comando</div>
+            <h3>Radar da operação</h3>
+            <p>Leitura rápida do momento atual da base</p>
+          </div>
+        </div>
+        <div class="signal-list">
+          ${renderSignalCard("Melhor cluster", topNetwork.name, `${topNetwork.goalPct}% da meta com ${topNetwork.operators} operadores`, "good")}
+          ${renderSignalCard("Ponto de atenção", `${data.operators.filter((item) => item.goalPct < 60).length} operadores`, "Abaixo de 60% da meta individual", "alert")}
+          ${renderSignalCard("Proteção financeira", currency(financial.reserve), "Reserva disponível para absorver pressão de caixa", "good")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Pulse GS</div>
+            <h3>Snapshot executivo</h3>
+            <p>Resumo para decisão rápida</p>
+          </div>
+        </div>
+        <div class="mini-grid">
+          ${renderMiniPanel("Base ativa", String(activeOps), "Operadores em produção agora")}
+          ${renderMiniPanel("Meta alta", String(data.operators.filter((item) => item.goalPct >= 80).length), "Acima de 80% da meta")}
+          ${renderMiniPanel("Redes fortes", String(data.networks.filter((item) => item.goalPct >= 85).length), "Clusters próximos do alvo")}
+          ${renderMiniPanel("Remessas hoje", String(data.remessas.filter((item) => item.date === today()).length), "Movimentações do dia")}
         </div>
       </article>
     </section>
@@ -695,6 +741,8 @@ function renderOperadores() {
   const rows = data.operators.filter((item) =>
     matchesSearch([item.name, item.id, item.network, item.platform, item.manager, item.city])
   );
+  const topOperator = [...rows].sort((a, b) => b.profit - a.profit)[0];
+  const avgRoi = rows.length ? Math.round(sum(rows, "roi") / rows.length) : 0;
 
   return `
     <section class="metrics-grid">
@@ -708,6 +756,40 @@ function renderOperadores() {
       })}
       ${renderMetricCard({ icon: "banknote", label: "Lucro somado", value: currency(sum(rows, "profit")), change: "↑ 12.8%", tone: "good" })}
       ${renderMetricCard({ icon: "target", label: "Média de meta", value: `${average(rows, "goalPct").toFixed(1)}%`, change: "↑ 2.4%", tone: "good" })}
+    </section>
+
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Time ativo</div>
+            <h3>Radar da equipe</h3>
+            <p>Sinais de produtividade e risco operacional</p>
+          </div>
+        </div>
+        <div class="mini-grid">
+          ${renderMiniPanel("Top operador", topOperator ? topOperator.name : "—", topOperator ? currency(topOperator.profit) : "Sem dados")}
+          ${renderMiniPanel("ROI médio", `${avgRoi}%`, "Retorno médio da equipe filtrada")}
+          ${renderMiniPanel("Em atenção", String(rows.filter((item) => item.goalPct < 60).length), "Abaixo de 60% da meta")}
+          ${renderMiniPanel("Offline", String(rows.filter((item) => item.status === "offline").length), "Fora de operação agora")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Distribuição</div>
+            <h3>Status operacional</h3>
+            <p>Como a base está distribuída neste momento</p>
+          </div>
+        </div>
+        <div class="kpi-list">
+          ${renderKpiRow("Online", String(rows.filter((item) => item.status === "online").length), "Operando normalmente")}
+          ${renderKpiRow("Trabalhando", String(rows.filter((item) => item.status === "trabalhando").length), "Em fluxo ativo")}
+          ${renderKpiRow("Pausa", String(rows.filter((item) => item.status === "pausa").length), "Aguardando retorno")}
+          ${renderKpiRow("Offline", String(rows.filter((item) => item.status === "offline").length), "Sem atividade atual")}
+        </div>
+      </article>
     </section>
 
     <section class="table-card">
@@ -840,6 +922,8 @@ function renderGerentes() {
 
 function renderRedes() {
   const rows = data.networks.filter((item) => matchesSearch([item.name, item.code, item.status]));
+  const topNetwork = [...rows].sort((a, b) => b.profit - a.profit)[0];
+  const lowNetwork = [...rows].sort((a, b) => a.goalPct - b.goalPct)[0];
 
   return `
     <section class="metrics-grid">
@@ -847,6 +931,36 @@ function renderRedes() {
       ${renderMetricCard({ icon: "network", label: "Ativas", value: String(rows.filter((item) => item.status === "ativa").length), change: "↑ 8.3%", tone: "good" })}
       ${renderMetricCard({ icon: "users", label: "Operadores", value: String(sum(rows, "operators")), change: "↑ 4.6%", tone: "good" })}
       ${renderMetricCard({ icon: "banknote", label: "Lucro somado", value: compactCurrency(sum(rows, "profit")), change: "↑ 14.2%", tone: "good" })}
+    </section>
+
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Estratégia de rede</div>
+            <h3>Pulso das redes</h3>
+            <p>Direção visual dos clusters mais relevantes</p>
+          </div>
+        </div>
+        <div class="signal-list">
+          ${renderSignalCard("Rede líder", topNetwork ? topNetwork.name : "—", topNetwork ? `${compactCurrency(topNetwork.profit)} • ROI ${topNetwork.roi}%` : "Sem dados", "good")}
+          ${renderSignalCard("Menor aderência", lowNetwork ? lowNetwork.name : "—", lowNetwork ? `${lowNetwork.goalPct}% da meta atual` : "Sem dados", "alert")}
+          ${renderSignalCard("Capacidade total", String(sum(rows, "operators")), "Operadores distribuídos entre as redes ativas", "good")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Mix operacional</div>
+            <h3>Leitura de distribuição</h3>
+            <p>Onde a operação está mais concentrada</p>
+          </div>
+        </div>
+        <div class="kpi-list">
+          ${rows.slice(0, 4).map((item) => renderKpiRow(item.name, `${item.operators} ops`, `${item.goalPct}% de meta • perf. ${item.performance}%`)).join("")}
+        </div>
+      </article>
     </section>
 
     <section class="network-grid">
@@ -968,6 +1082,7 @@ function renderFinanceiro() {
     <section class="chart-card">
       <div class="section-head">
         <div>
+          <div class="section-kicker">Fluxo consolidado</div>
           <h2>Curva de Performance</h2>
           <p>Lucro, receita e custos consolidados</p>
         </div>
@@ -980,6 +1095,48 @@ function renderFinanceiro() {
       </div>
       <div class="canvas-wrap"><canvas id="finance-chart" width="980" height="340"></canvas></div>
     </section>
+
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Leitura financeira</div>
+            <h3>Resumo executivo</h3>
+            <p>Indicadores para decidir com velocidade</p>
+          </div>
+        </div>
+        <div class="signal-list">
+          ${renderSignalCard("Margem atual", `${financial.margin}%`, "Conversão atual de receita em lucro líquido", "good")}
+          ${renderSignalCard("Reserva tática", currency(financial.reserve), "Cobertura disponível para choques operacionais", "good")}
+          ${renderSignalCard("Pressão de custo", `${percent(financial.costs, financial.revenue)}%`, "Peso dos custos sobre a receita consolidada", "alert")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Meta da companhia</div>
+            <h3>Projeção de avanço</h3>
+            <p>Leitura de progresso para o objetivo principal</p>
+          </div>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div style="flex:1;">
+              <strong>Meta anual da empresa</strong>
+              <div class="progress progress--green" style="margin-top:12px;"><span style="width:${data.goals[0].progress}%"></span></div>
+            </div>
+            <span class="timeline-item__time">${data.goals[0].progress}%</span>
+          </div>
+        </div>
+        <div class="mini-grid">
+          ${renderMiniPanel("Atingido", compactCurrency(data.goals[0].current), "Volume consolidado")}
+          ${renderMiniPanel("Restante", compactCurrency(data.goals[0].target - data.goals[0].current), "Até o objetivo final")}
+          ${renderMiniPanel("Prazo", data.goals[0].due, "Data limite definida")}
+          ${renderMiniPanel("Fluxo de caixa", currency(financial.cashFlow), "Pulso líquido do período")}
+        </div>
+      </article>
+    </section>
   `;
 }
 
@@ -989,6 +1146,7 @@ function renderCustos() {
   const paid = sum(rows.filter((item) => item.status === "pago"), "value");
   const pending = rows.filter((item) => item.status === "pendente").length;
   const overdue = rows.filter((item) => item.status === "vencido").length;
+  const categories = topCostCategories(rows).slice(0, 4);
 
   return `
     <section class="metrics-grid">
@@ -996,6 +1154,36 @@ function renderCustos() {
       ${renderMetricCard({ icon: "check-circle", label: "Pagos", value: currency(paid), change: "↑ 12.4%", tone: "good" })}
       ${renderMetricCard({ icon: "banknote", label: "Pendentes", value: String(pending), change: "", tone: "alert" })}
       ${renderMetricCard({ icon: "alert-circle", label: "Vencidos", value: String(overdue), change: "", tone: "danger" })}
+    </section>
+
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Centro de custo</div>
+            <h3>Distribuição por categoria</h3>
+            <p>Onde o caixa está mais pressionado</p>
+          </div>
+        </div>
+        <div class="kpi-list">
+          ${categories.map((item) => renderKpiRow(item.label, currency(item.value), `${item.share}% do total filtrado`)).join("")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Risco de caixa</div>
+            <h3>Controle diário</h3>
+            <p>Prioridades do financeiro operacional</p>
+          </div>
+        </div>
+        <div class="signal-list">
+          ${renderSignalCard("Itens vencidos", String(overdue), "Despesas exigindo ação imediata", overdue ? "danger" : "good")}
+          ${renderSignalCard("Pagos", currency(paid), "Volume já baixado no período", "good")}
+          ${renderSignalCard("Pendências", String(pending), "Lançamentos aguardando confirmação", pending ? "alert" : "good")}
+        </div>
+      </article>
     </section>
 
     <section class="table-card">
@@ -1163,8 +1351,9 @@ function renderRelatorios() {
     <section class="report-grid">
       ${data.reports
         .map(
-          (item) => `
+          (item, index) => `
             <article class="report-card">
+              <span class="report-card__tag">Relatório ${index + 1}</span>
               <h3>${escapeHtml(item.title)}</h3>
               <p>${escapeHtml(item.body)}</p>
               <button class="button button--primary" data-action="export-json">Exportar base</button>
@@ -1173,6 +1362,48 @@ function renderRelatorios() {
         )
         .join("")}
     </section>
+  `;
+}
+
+function renderInsightPill(label, value, note) {
+  return `
+    <article class="insight-pill">
+      <span>${label}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <small>${escapeHtml(note)}</small>
+    </article>
+  `;
+}
+
+function renderSignalCard(label, value, note, tone = "good") {
+  return `
+    <article class="signal-card signal-card--${tone}">
+      <span>${label}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <small>${escapeHtml(note)}</small>
+    </article>
+  `;
+}
+
+function renderMiniPanel(label, value, note) {
+  return `
+    <article class="mini-panel">
+      <span>${label}</span>
+      <strong class="mini-panel__value">${escapeHtml(value)}</strong>
+      <small>${escapeHtml(note)}</small>
+    </article>
+  `;
+}
+
+function renderKpiRow(label, value, note) {
+  return `
+    <div class="kpi-row">
+      <div>
+        <strong>${escapeHtml(label)}</strong>
+        <small>${escapeHtml(note)}</small>
+      </div>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
   `;
 }
 
@@ -1641,6 +1872,28 @@ function sum(items, key) {
 
 function average(items, key) {
   return items.length ? sum(items, key) / items.length : 0;
+}
+
+function percent(part, total) {
+  if (!total) return 0;
+  return ((part / total) * 100).toFixed(1);
+}
+
+function topCostCategories(items) {
+  const grouped = items.reduce((acc, item) => {
+    acc[item.category] = (acc[item.category] || 0) + Number(item.value || 0);
+    return acc;
+  }, {});
+
+  const total = Object.values(grouped).reduce((acc, value) => acc + value, 0);
+
+  return Object.entries(grouped)
+    .map(([label, value]) => ({
+      label,
+      value,
+      share: percent(value, total),
+    }))
+    .sort((a, b) => b.value - a.value);
 }
 
 function currency(value) {

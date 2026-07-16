@@ -1,12 +1,12 @@
-const CACHE_NAME = "gs-control-cpa-v3";
+const CACHE_NAME = "gs-control-cpa-v4";
 const ASSETS = [
   "./",
   "./index.html",
   "./assets/brand/gs-symbol.svg",
-  "./assets/css/styles.css?v=20260716-1",
-  "./assets/js/app.js?v=20260716-1",
+  "./assets/css/styles.css?v=20260716-2",
+  "./assets/js/app.js?v=20260716-2",
   "./data/seed.json",
-  "./manifest.webmanifest?v=20260716-1"
+  "./manifest.webmanifest?v=20260716-2"
 ];
 
 self.addEventListener("install", (event) => {
