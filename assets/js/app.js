@@ -756,8 +756,14 @@ function renderTimeline() {
           .map(
             (item) => `
               <div class="timeline-item">
-                <div>
-                  <strong>${escapeHtml(item.title)}</strong>
+                <span class="timeline-item__marker timeline-item__marker--${normalizeTimelineFilter(item.type)}">
+                  ${iconMarkup(timelineTypeIcon(item.type))}
+                </span>
+                <div class="timeline-item__body">
+                  <div class="timeline-item__top">
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <span class="tiny-badge">${capitalize(item.type)}</span>
+                  </div>
                   <div class="timeline-item__meta">${escapeHtml(item.subtitle)}</div>
                   <div class="timeline-item__meta">por ${escapeHtml(item.author)}</div>
                 </div>
@@ -2425,6 +2431,19 @@ function normalizeStatus(value) {
 
 function normalizeTimelineFilter(value) {
   return String(value).toLowerCase();
+}
+
+function timelineTypeIcon(type) {
+  const map = {
+    operador: "users",
+    meta: "target",
+    custo: "receipt",
+    pix: "wallet",
+    remessa: "repeat",
+    "edição": "chart-up",
+    exclusão: "alert-circle",
+  };
+  return map[normalizeTimelineFilter(type)] || "activity";
 }
 
 function matchesSearch(fields) {
