@@ -1446,13 +1446,35 @@ function sparkline(values, color) {
 
 function paintStaticIcons() {
   document.querySelectorAll("[data-icon]").forEach((node) => {
-    node.innerHTML = iconMarkup(node.dataset.icon);
+    mountIcon(node, node.dataset.icon);
   });
 }
 
 function paintDynamicIcons() {
   content.querySelectorAll("[data-icon]").forEach((node) => {
-    node.innerHTML = iconMarkup(node.dataset.icon);
+    mountIcon(node, node.dataset.icon);
+  });
+}
+
+function mountIcon(node, name) {
+  node.innerHTML = iconMarkup(name);
+  normalizeSvgIcon(node.querySelector("svg"));
+}
+
+function normalizeSvgIcon(svg) {
+  if (!svg) return;
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "1.9");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+
+  svg.querySelectorAll("*").forEach((child) => {
+    child.setAttribute("fill", "none");
+    child.setAttribute("stroke", "currentColor");
+    child.setAttribute("stroke-width", "1.9");
+    child.setAttribute("stroke-linecap", "round");
+    child.setAttribute("stroke-linejoin", "round");
   });
 }
 
@@ -1487,10 +1509,7 @@ function iconMarkup(name) {
     "chevrons-left": `<svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>`,
   };
 
-  return (icons[name] || "").replace(
-    "<svg ",
-    '<svg fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" '
-  );
+  return icons[name] || "";
 }
 
 function submitCost(event) {
