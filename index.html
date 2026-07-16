@@ -270,8 +270,137 @@
       </form>
     </dialog>
 
+    <dialog id="daily-goal-dialog" class="dialog">
+      <form id="daily-goal-form" class="dialog__panel dialog__panel--compact" method="dialog">
+        <div class="dialog__header">
+          <div>
+            <p class="dialog__eyebrow">Meta do dia</p>
+            <h2>Atualizar meta diaria</h2>
+          </div>
+          <button type="button" class="dialog-close" data-close-dialog="daily-goal-dialog" aria-label="Fechar modal de meta diaria">×</button>
+        </div>
+
+        <div class="form-grid">
+          <label class="form-grid__full">
+            Valor da meta
+            <div class="field-shell field-shell--money">
+              <span class="field-prefix">R$</span>
+              <input id="daily-goal-value" type="text" inputmode="decimal" placeholder="500,00" required />
+            </div>
+          </label>
+        </div>
+
+        <div class="quick-pills">
+          <button type="button" class="pill-button" data-fill-daily-goal="500">R$ 500</button>
+          <button type="button" class="pill-button" data-fill-daily-goal="1000">R$ 1.000</button>
+          <button type="button" class="pill-button" data-fill-daily-goal="2000">R$ 2.000</button>
+          <button type="button" class="pill-button" data-fill-daily-goal="5000">R$ 5.000</button>
+        </div>
+
+        <div class="dialog__footer">
+          <button type="button" class="button button--ghost" data-close-dialog="daily-goal-dialog">Cancelar</button>
+          <button type="submit" class="button button--primary">Salvar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="operation-dialog" class="dialog">
+      <form id="operation-form" class="dialog__panel dialog__panel--wide" method="dialog">
+        <input id="operation-id" type="hidden" />
+        <input id="operation-model" type="hidden" value="salario-bau" />
+
+        <div class="dialog__header">
+          <div>
+            <p class="dialog__eyebrow">Nova operacao</p>
+            <h2 id="operation-dialog-title">Nova meta</h2>
+          </div>
+          <button type="button" class="dialog-close" data-close-dialog="operation-dialog" aria-label="Fechar modal de operacao">×</button>
+        </div>
+
+        <div class="operation-form-layout">
+          <div class="operation-form-main">
+            <div class="form-grid">
+              <label>
+                Plataforma <span class="required-mark">*</span>
+                <input id="operation-platform" placeholder="Nome da plataforma" required />
+              </label>
+
+              <label>
+                Rede <span class="required-mark">*</span>
+                <select id="operation-network" required></select>
+              </label>
+
+              <label class="form-grid__full">
+                Titulo <span class="required-mark">*</span>
+                <input id="operation-title" placeholder="Ex: Meta Abril" required />
+              </label>
+
+              <label>
+                Contas <span class="required-mark">*</span>
+                <input id="operation-accounts" type="number" min="1" placeholder="10" required />
+              </label>
+            </div>
+
+            <div class="quick-pills">
+              <button type="button" class="pill-button" data-fill-accounts="20">20</button>
+              <button type="button" class="pill-button" data-fill-accounts="30">30</button>
+              <button type="button" class="pill-button" data-fill-accounts="50">50</button>
+              <button type="button" class="pill-button" data-fill-accounts="60">60</button>
+            </div>
+
+            <div class="section-kicker">Modelo da meta</div>
+            <div class="model-grid">
+              <button type="button" class="model-card is-active" data-model="salario-bau">
+                <strong>Salario + Bau</strong>
+                <span>Recebe salario fixo + bonus</span>
+              </button>
+              <button type="button" class="model-card" data-model="apenas-bau">
+                <strong>Apenas Bau</strong>
+                <span>So bonus das contas</span>
+              </button>
+            </div>
+
+            <div class="account-box">
+              <div class="account-box__head">
+                <div>
+                  <strong>Conta mae</strong>
+                  <p>Credenciais salvas para acesso rapido nas remessas</p>
+                </div>
+                <span class="tiny-badge">Opcional</span>
+              </div>
+
+              <div class="form-grid">
+                <label class="form-grid__full">
+                  Link de acesso
+                  <input id="operation-link" placeholder="plataforma.com/login (opcional)" />
+                </label>
+                <label>
+                  Login
+                  <input id="operation-login" placeholder="usuario ou email" />
+                </label>
+                <label>
+                  Senha
+                  <input id="operation-password" placeholder="********" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <aside class="operation-form-aside">
+            <div class="insight-box">
+              <strong>Insights da sua operacao</strong>
+              <p>Analise das metas anteriores</p>
+              <ul id="operation-insights" class="insight-list"></ul>
+            </div>
+
+            <button type="submit" class="button button--primary button--full">Iniciar operacao agora</button>
+          </aside>
+        </div>
+      </form>
+    </dialog>
+
     <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="assets/js/admin-app.js?v=20260716-8" type="module"></script>
+    <script src="assets/js/admin-app.js?v=20260716-9" type="module"></script>
   </body>
 </html>

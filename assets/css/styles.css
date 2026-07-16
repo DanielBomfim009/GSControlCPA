@@ -236,14 +236,268 @@
   padding: 28px;
 }
 
+.dialog__panel--compact {
+  width: min(100vw - 24px, 560px);
+}
+
+.dialog__panel--wide {
+  width: min(100vw - 24px, 1080px);
+}
+
+.quick-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.quick-pills--compact {
+  margin-top: 10px;
+}
+
+.pill-button,
+.upload-shell {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.upload-shell {
+  width: 100%;
+  text-align: left;
+}
+
+.operation-form-layout,
+.detail-grid,
+.detail-form-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.operation-form-layout {
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.85fr);
+  margin-top: 14px;
+}
+
+.operation-form-main,
+.operation-form-aside,
+.detail-form-column,
+.detail-form-aside {
+  display: grid;
+  gap: 16px;
+}
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.model-card {
+  min-height: 96px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+}
+
+.model-card strong,
+.account-box strong,
+.insight-box strong {
+  display: block;
+}
+
+.model-card span,
+.account-box p,
+.insight-box p {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.model-card.is-active {
+  border-color: rgba(255, 86, 70, 0.58);
+  background: linear-gradient(180deg, rgba(255, 82, 66, 0.14), rgba(255, 82, 66, 0.06));
+  box-shadow: 0 14px 28px rgba(255, 82, 66, 0.14);
+}
+
+.account-box,
+.insight-box,
+.preview-card {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.account-box__head,
+.detail-hero__title-row,
+.detail-hero__actions,
+.detail-hero__meta,
+.detail-topbar,
+.preview-card__grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.account-box__head,
+.detail-topbar {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.insight-list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  display: grid;
+  gap: 8px;
+}
+
+.button--full {
+  width: 100%;
+}
+
+.compact {
+  padding: 20px;
+  border-radius: 14px;
+}
+
+.detail-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 26px 28px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(18, 21, 28, 0.98), rgba(11, 13, 18, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.detail-hero h2 {
+  margin: 0;
+  font-size: 2.1rem;
+}
+
+.detail-hero__meta {
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+.detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detail-metric {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.detail-metric small {
+  display: block;
+  color: var(--muted-2);
+  text-transform: uppercase;
+}
+
+.detail-metric strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.85rem;
+}
+
+.detail-metric--good strong {
+  color: #7effcf;
+}
+
+.detail-metric--danger strong {
+  color: #ff625f;
+}
+
+.detail-progress-panel__pct {
+  font-size: 2rem;
+  color: #ff625f;
+}
+
+.progress--detail {
+  margin-top: 16px;
+}
+
+.detail-grid {
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.85fr);
+}
+
+.detail-form-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(280px, 0.9fr);
+}
+
+.detail-form-panel label,
+.detail-form-column label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted-2);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.preview-card strong {
+  display: block;
+}
+
+.preview-card__value {
+  margin-top: 12px;
+  font-size: 2rem;
+  color: #ff625f;
+}
+
+.preview-card__grid {
+  margin-top: 16px;
+  justify-content: space-between;
+}
+
+.preview-card__grid div {
+  flex: 1;
+  min-width: 70px;
+}
+
+.preview-card__grid small {
+  display: block;
+  color: var(--muted-2);
+  text-transform: uppercase;
+}
+
+.preview-card__grid span {
+  display: block;
+  margin-top: 6px;
+  color: white;
+}
+
 @media (max-width: 900px) {
   .admin-hero,
-  .daily-goal-card {
+  .daily-goal-card,
+  .detail-hero {
     flex-direction: column;
     align-items: flex-start;
   }
 
   .admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .operation-form-layout,
+  .detail-grid,
+  .detail-form-grid,
+  .detail-metrics,
+  .model-grid {
     grid-template-columns: 1fr;
   }
 }
