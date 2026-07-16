@@ -1,0 +1,149 @@
+{
+  "brand": {
+    "name": "GS Control CPA",
+    "tagline": "Central privada de operacoes, leitura de resultado e controle local"
+  },
+  "profile": {
+    "owner": "Daniel Bomfim",
+    "updatedAt": "2026-07-16 09:40"
+  },
+  "goals": {
+    "daily": 500,
+    "global": 100000,
+    "closed": 6
+  },
+  "settings": {
+    "perDepositor": 2,
+    "profitShare": 15
+  },
+  "history": {
+    "profit": [80, 95, 88, 120, 112, 140, 133, 176, 168, 210]
+  },
+  "operators": [
+    {
+      "name": "Rodrigo Assis",
+      "status": "ativo",
+      "network": "777",
+      "score": 92,
+      "deposits": 18,
+      "profit": 420
+    },
+    {
+      "name": "Ana Beatriz",
+      "status": "ativo",
+      "network": "Atlas Black",
+      "score": 84,
+      "deposits": 13,
+      "profit": 330
+    },
+    {
+      "name": "Diego Pinto",
+      "status": "ativo",
+      "network": "777",
+      "score": 79,
+      "deposits": 11,
+      "profit": 280
+    },
+    {
+      "name": "Larissa Oliveira",
+      "status": "pausado",
+      "network": "Prime East",
+      "score": 72,
+      "deposits": 9,
+      "profit": 190
+    }
+  ],
+  "networks": [
+    {
+      "name": "777",
+      "score": 88,
+      "profit": 640,
+      "closedGoals": 3,
+      "deposits": 25,
+      "remessas": 6,
+      "accounts": 18
+    },
+    {
+      "name": "Atlas Black",
+      "score": 76,
+      "profit": 360,
+      "closedGoals": 2,
+      "deposits": 16,
+      "remessas": 3,
+      "accounts": 11
+    },
+    {
+      "name": "Prime East",
+      "score": 69,
+      "profit": 212,
+      "closedGoals": 1,
+      "deposits": 10,
+      "remessas": 2,
+      "accounts": 7
+    }
+  ],
+  "invites": [
+    {
+      "id": "invite-1",
+      "code": "28469dc4f3ee26bf360a9cf9b323082f5b761581fb4e4fa0",
+      "date": "2026-07-14",
+      "status": "Pendente"
+    },
+    {
+      "id": "invite-2",
+      "code": "5ca7dd5cb128ed8714eb5f8dbccde561374f958a96fa3ea1",
+      "date": "2026-07-14",
+      "status": "Pendente"
+    }
+  ],
+  "remessas": [
+    {
+      "id": "REM-9510",
+      "operator": "Rodrigo Assis",
+      "value": 18789,
+      "source": "Nubank",
+      "target": "Santander",
+      "date": "2026-07-15",
+      "status": "concluida",
+      "note": "Primeiro lote da manha"
+    },
+    {
+      "id": "REM-9511",
+      "operator": "Ana Beatriz",
+      "value": 8450,
+      "source": "Inter",
+      "target": "Itau",
+      "date": "2026-07-16",
+      "status": "processando",
+      "note": "Conciliacao em andamento"
+    },
+    {
+      "id": "REM-9512",
+      "operator": "Diego Pinto",
+      "value": 5220,
+      "source": "Santander",
+      "target": "C6",
+      "date": "2026-07-16",
+      "status": "pendente",
+      "note": "Esperando aprovacao"
+    }
+  ],
+  "costs": [
+    {
+      "id": "cost-1",
+      "type": "Proxy",
+      "value": 49.9,
+      "date": "2026-07-15",
+      "owner": "Daniel Bomfim",
+      "note": "Pacote semanal de proxies"
+    },
+    {
+      "id": "cost-2",
+      "type": "SMS",
+      "value": 18,
+      "date": "2026-07-16",
+      "owner": "Daniel Bomfim",
+      "note": "Recarga de validacao"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "GS Control CPA",
+  "short_name": "GS Control",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#050608",
+  "theme_color": "#08090d",
+  "description": "Painel operacional privado com HTML, JSON local e uso offline.",
+  "icons": []
+}

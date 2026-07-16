@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GS Control CPA | Controle Operacional</title>
+    <meta
+      name="description"
+      content="Painel operacional privado com dados locais para operadores, redes, faturamento e custos."
+    />
+    <meta name="theme-color" content="#08090d" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-panel">
+          <div class="brand">
+            <div class="brand__mark">
+              <span>G</span>
+              <span>N</span>
+            </div>
+            <div class="brand__text">
+              <strong>GS Control CPA</strong>
+              <small>Operacao privada de Daniel Bomfim</small>
+            </div>
+          </div>
+          <div class="brand-panel__badge">
+            <span class="brand-panel__pulse"></span>
+            Interface local segura
+          </div>
+        </div>
+
+        <nav class="sidebar__nav">
+          <button class="side-link is-active" data-section="dashboard">
+            <span class="side-link__icon">01</span>
+            <span class="side-link__copy">
+              <strong>Admin</strong>
+              <small>Painel central</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="operadores">
+            <span class="side-link__icon">02</span>
+            <span class="side-link__copy">
+              <strong>Operadores</strong>
+              <small>Equipe e ranking</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="redes">
+            <span class="side-link__icon">03</span>
+            <span class="side-link__copy">
+              <strong>Redes</strong>
+              <small>Scoring e lucro</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="faturamento">
+            <span class="side-link__icon">04</span>
+            <span class="side-link__copy">
+              <strong>Faturamento</strong>
+              <small>Receita e evolucao</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="custos">
+            <span class="side-link__icon">05</span>
+            <span class="side-link__copy">
+              <strong>Custos</strong>
+              <small>Despesas operacionais</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="pix">
+            <span class="side-link__icon">06</span>
+            <span class="side-link__copy">
+              <strong>Chaves PIX</strong>
+              <small>Fluxo financeiro</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="afiliados">
+            <span class="side-link__icon">07</span>
+            <span class="side-link__copy">
+              <strong>Afiliados</strong>
+              <small>Relacionamentos</small>
+            </span>
+          </button>
+          <button class="side-link" data-section="assinatura">
+            <span class="side-link__icon">08</span>
+            <span class="side-link__copy">
+              <strong>Assinatura</strong>
+              <small>Governanca</small>
+            </span>
+          </button>
+        </nav>
+
+        <div class="sidebar__promo">
+          <p class="sidebar__pill">Operacao privada</p>
+          <strong>GS Vault</strong>
+          <span>Controle local com visual premium, backup em JSON e funcionamento offline.</span>
+        </div>
+
+        <div class="sidebar__footer">
+          <button id="import-button" class="ghost-button">Importar JSON</button>
+          <button id="export-button" class="ghost-button">Exportar JSON</button>
+          <button id="reset-button" class="ghost-button">Restaurar base</button>
+          <input id="import-input" type="file" accept=".json,application/json" hidden />
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="topbar__banner">
+            <div class="topbar__intro">
+              <strong id="banner-title">GS Control CPA Operacional</strong>
+              <span id="banner-subtitle">Central privada de operacoes e inteligencia local</span>
+            </div>
+            <div class="topbar__actions">
+              <button class="top-chip">Privado</button>
+              <button class="top-chip">HTML local</button>
+              <button class="top-chip top-chip--online">Online</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="hero">
+          <div class="hero__content">
+            <p class="eyebrow">Controle operacional local</p>
+            <h1 id="page-title">Dashboard</h1>
+            <p id="page-description">
+              Painel principal da sua operacao, com leitura rapida, metas e modulos internos.
+            </p>
+          </div>
+
+          <div class="hero__controls">
+            <button id="open-cost-modal" class="primary-button">Novo custo</button>
+            <button id="open-remessa-modal" class="ghost-button">Nova remessa</button>
+          </div>
+        </section>
+
+        <section id="app-content" class="content"></section>
+      </main>
+    </div>
+
+    <dialog id="cost-dialog" class="dialog">
+      <form id="cost-form" class="dialog__panel" method="dialog">
+        <div class="dialog__header">
+          <div>
+            <p class="eyebrow">Cadastro local</p>
+            <h2>Novo custo operacional</h2>
+          </div>
+          <button type="button" class="icon-button" data-close-dialog="cost-dialog">Fechar</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Tipo
+            <select id="cost-type" required>
+              <option value="Proxy">Proxy</option>
+              <option value="SMS">SMS</option>
+              <option value="Postagem">Postagem Instagram</option>
+              <option value="Bot">Bot / Automacao</option>
+              <option value="VPS">VPS / Servidor</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </label>
+          <label>
+            Valor (R$)
+            <input id="cost-value" type="number" min="0" step="0.01" required />
+          </label>
+          <label>
+            Data
+            <input id="cost-date" type="date" required />
+          </label>
+          <label>
+            Responsavel
+            <input id="cost-owner" required />
+          </label>
+          <label class="form-grid__full">
+            Nota
+            <textarea id="cost-note" rows="4" placeholder="Descreva o custo"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog__footer">
+          <button type="button" class="ghost-button" data-close-dialog="cost-dialog">Cancelar</button>
+          <button type="submit" class="primary-button">Adicionar custo</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="remessa-dialog" class="dialog">
+      <form id="remessa-form" class="dialog__panel" method="dialog">
+        <div class="dialog__header">
+          <div>
+            <p class="eyebrow">Financeiro</p>
+            <h2>Nova remessa</h2>
+          </div>
+          <button type="button" class="icon-button" data-close-dialog="remessa-dialog">Fechar</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            ID
+            <input id="remessa-id" required />
+          </label>
+          <label>
+            Operador
+            <input id="remessa-operator" required />
+          </label>
+          <label>
+            Valor (R$)
+            <input id="remessa-value" type="number" min="0" step="0.01" required />
+          </label>
+          <label>
+            Status
+            <select id="remessa-status" required>
+              <option value="pendente">Pendente</option>
+              <option value="processando">Processando</option>
+              <option value="concluida">Concluida</option>
+            </select>
+          </label>
+          <label>
+            Origem
+            <input id="remessa-source" required />
+          </label>
+          <label>
+            Destino
+            <input id="remessa-target" required />
+          </label>
+          <label>
+            Data
+            <input id="remessa-date" type="date" required />
+          </label>
+          <label class="form-grid__full">
+            Nota
+            <textarea id="remessa-note" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog__footer">
+          <button type="button" class="ghost-button" data-close-dialog="remessa-dialog">Cancelar</button>
+          <button type="submit" class="primary-button">Salvar remessa</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="assets/js/app.js" type="module"></script>
+  </body>
+</html>
