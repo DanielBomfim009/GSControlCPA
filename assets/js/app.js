@@ -11,6 +11,7 @@ const ui = {
 };
 
 let data = null;
+const chartStates = new Map();
 
 const content = document.querySelector("#app-content");
 const titleNode = document.querySelector("#page-title");
@@ -149,7 +150,7 @@ async function loadData() {
     try {
       const parsed = JSON.parse(persisted);
       if (parsed.version === APP_VERSION) {
-        data = parsed;
+        data = normalizeDataShape(parsed);
         return;
       }
     } catch {
@@ -158,7 +159,7 @@ async function loadData() {
   }
 
   const response = await fetch("data/seed.json");
-  data = await response.json();
+  data = normalizeDataShape(await response.json());
   persistData();
 }
 
@@ -169,6 +170,7 @@ function persistData() {
 
 function bindStaticEvents() {
   document.addEventListener("click", handleClick);
+  document.addEventListener("keydown", handleKeydown);
   document.querySelector("#cost-form").addEventListener("submit", submitCost);
   document.querySelector("#remessa-form").addEventListener("submit", submitRemessa);
   document.querySelector("#import-button").addEventListener("click", () => {
@@ -181,6 +183,30 @@ function bindStaticEvents() {
     ui.search = event.target.value.trim().toLowerCase();
     render();
   });
+  document.querySelectorAll("#cost-value, #remessa-value").forEach((node) => {
+    node.addEventListener("input", handleCurrencyInput);
+    node.addEventListener("blur", handleCurrencyBlur);
+  });
+  document.querySelectorAll("#cost-date, #remessa-date").forEach((node) => {
+    node.addEventListener("input", handleDateInput);
+    node.addEventListener("blur", handleDateBlur);
+  });
+  document.querySelectorAll("#cost-form input, #cost-form select, #cost-form textarea, #remessa-form input, #remessa-form select, #remessa-form textarea").forEach((node) => {
+    node.addEventListener("input", clearFieldError);
+    node.addEventListener("change", clearFieldError);
+  });
+}
+
+function handleKeydown(event) {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    searchNode.focus();
+    searchNode.select();
+  }
+
+  if (event.key === "Escape") {
+    document.querySelectorAll("dialog[open]").forEach((dialog) => dialog.close());
+  }
 }
 
 function handleClick(event) {
@@ -622,7 +648,7 @@ function renderMeuDia() {
                   <div style="flex:1;">
                     <strong>${escapeHtml(task.title)}</strong>
                   </div>
-                  <span class="timeline-item__time">${escapeHtml(task.when)}</span>
+                  <span class="timeline-item__time">${escapeHtml(formatTaskWhen(task.when))}</span>
                 </button>
               `
             )
@@ -662,7 +688,7 @@ function renderMeuDia() {
                     <strong>${escapeHtml(goal.title)}</strong>
                     <div class="progress" style="margin-top:12px;"><span style="width:${goal.progress}%"></span></div>
                   </div>
-                  <span class="timeline-item__time">${goal.due}</span>
+                  <span class="timeline-item__time">${formatDisplayDate(goal.due)}</span>
                 </div>
               `
             )
@@ -701,10 +727,12 @@ function renderMeuDia() {
 }
 
 function renderTimeline() {
-  const items = data.timeline.filter((item) => {
+  const items = [...data.timeline]
+    .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
+    .filter((item) => {
     if (ui.timelineFilter === "Todos") return matchesSearch([item.title, item.subtitle, item.author]);
     return item.type === ui.timelineFilter.toLowerCase() && matchesSearch([item.title, item.subtitle, item.author]);
-  });
+    });
 
   return `
     <section class="panel">
@@ -733,7 +761,7 @@ function renderTimeline() {
                   <div class="timeline-item__meta">${escapeHtml(item.subtitle)}</div>
                   <div class="timeline-item__meta">por ${escapeHtml(item.author)}</div>
                 </div>
-                <span class="timeline-item__time">${escapeHtml(item.time)}</span>
+                <span class="timeline-item__time">${escapeHtml(formatTimelineTime(item))}</span>
               </div>
             `
           )
@@ -1192,7 +1220,7 @@ function renderFinanceiro() {
         <div class="mini-grid">
           ${renderMiniPanel("Atingido", compactCurrency(data.goals[0].current), "Volume consolidado")}
           ${renderMiniPanel("Restante", compactCurrency(data.goals[0].target - data.goals[0].current), "Até o objetivo final")}
-          ${renderMiniPanel("Prazo", data.goals[0].due, "Data limite definida")}
+          ${renderMiniPanel("Prazo", formatDisplayDate(data.goals[0].due), "Data limite definida")}
           ${renderMiniPanel("Fluxo de caixa", currency(financial.cashFlow), "Pulso líquido do período")}
         </div>
       </article>
@@ -1276,7 +1304,7 @@ function renderCustos() {
                     <td>${escapeHtml(item.supplier)}</td>
                     <td>${escapeHtml(item.description)}</td>
                     <td>${currency(item.value)}</td>
-                    <td>${escapeHtml(item.date)}</td>
+                    <td>${formatDisplayDate(item.date)}</td>
                     <td>${escapeHtml(item.method)}</td>
                     <td>${statusBadge(item.status)}</td>
                   </tr>
@@ -1499,7 +1527,7 @@ function createOperator() {
   });
 
   pushActivity("Novo operador", `${name} entrou na base ${network.name}.`, "agora");
-  pushTimeline("operador", `Operador ${name} cadastrado`, `${network.name} • Plataforma ${platform.name}`, `${manager.name} • Gerente`, "AGORA");
+  pushTimeline("operador", `Operador ${name} cadastrado`, `${network.name} • Plataforma ${platform.name}`, `${manager.name} • Gerente`);
   persistData();
   showToast(`Operador ${name} criado localmente.`, "good");
 }
@@ -1522,7 +1550,7 @@ function createManager() {
   });
 
   pushActivity("Novo gerente", `${name} assumiu uma nova frente operacional.`, "agora");
-  pushTimeline("edição", `Gerente ${name} cadastrado`, `Nova liderança vinculada ao núcleo GS`, "Sistema GS", "AGORA");
+  pushTimeline("edição", `Gerente ${name} cadastrado`, `Nova liderança vinculada ao núcleo GS`, "Sistema GS");
   persistData();
   showToast(`Gerente ${name} criado localmente.`, "good");
 }
@@ -1553,7 +1581,7 @@ function createNetwork() {
   });
 
   pushActivity("Nova rede", `${name} entrou no mapa operacional.`, "agora");
-  pushTimeline("edição", `Rede ${name} criada`, `Cluster ${code} adicionado ao controle`, "Sistema GS", "AGORA");
+  pushTimeline("edição", `Rede ${name} criada`, `Cluster ${code} adicionado ao controle`, "Sistema GS");
   persistData();
   showToast(`Rede ${name} criada localmente.`, "good");
 }
@@ -1576,7 +1604,7 @@ function createPlatform() {
   });
 
   pushActivity("Nova plataforma", `${name} conectada em ${network.name}.`, "agora");
-  pushTimeline("edição", `Plataforma ${name} adicionada`, `${network.name} • nova integração operacional`, "Sistema GS", "AGORA");
+  pushTimeline("edição", `Plataforma ${name} adicionada`, `${network.name} • nova integração operacional`, "Sistema GS");
   persistData();
   showToast(`Plataforma ${name} criada localmente.`, "good");
 }
@@ -1597,7 +1625,7 @@ function createPixKey() {
   });
 
   pushActivity("Nova chave PIX", `${alias} adicionada ao cofre local.`, "agora");
-  pushTimeline("pix", `Chave ${alias} cadastrada`, `Nova rota PIX criada para suporte operacional`, data.profile.owner, "AGORA");
+  pushTimeline("pix", `Chave ${alias} cadastrada`, `Nova rota PIX criada para suporte operacional`, data.profile.owner);
   persistData();
   showToast(`Chave PIX ${alias} criada localmente.`, "good");
 }
@@ -1607,8 +1635,8 @@ function pushActivity(title, description, time) {
   data.activity = data.activity.slice(0, 8);
 }
 
-function pushTimeline(type, title, subtitle, author, time) {
-  data.timeline.unshift({ type, title, subtitle, author, time });
+function pushTimeline(type, title, subtitle, author, time = "Agora") {
+  data.timeline.unshift({ type, title, subtitle, author, time, timestamp: new Date().toISOString() });
   data.timeline = data.timeline.slice(0, 18);
 }
 
@@ -1789,6 +1817,7 @@ function drawCharts() {
 function drawMultiLineChart(id, history, series) {
   const canvas = document.getElementById(id);
   if (!canvas) return;
+  setupChartTooltip(canvas, id);
   const ctx = canvas.getContext("2d");
   const { width, height } = canvas;
   ctx.clearRect(0, 0, width, height);
@@ -1810,6 +1839,8 @@ function drawMultiLineChart(id, history, series) {
   const labels = history.labels;
   const stepX = (width - 110) / Math.max(labels.length - 1, 1);
 
+  const pointsBySeries = [];
+
   series.forEach((line) => {
     const points = history[line.key].map((value, index) => {
       const x = 60 + index * stepX;
@@ -1817,6 +1848,7 @@ function drawMultiLineChart(id, history, series) {
       const y = height - 52 - normalized * (height - 110);
       return { x, y };
     });
+    pointsBySeries.push({ ...line, points, values: history[line.key] });
 
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -1854,6 +1886,78 @@ function drawMultiLineChart(id, history, series) {
     const x = 60 + index * stepX;
     ctx.fillText(label, x - 10, height - 20);
   });
+
+  chartStates.set(id, { labels, series: pointsBySeries });
+}
+
+function setupChartTooltip(canvas, id) {
+  const wrap = canvas.parentElement;
+  if (!wrap || wrap.dataset.tooltipBound === "true") return;
+  wrap.dataset.tooltipBound = "true";
+
+  const tooltip = document.createElement("div");
+  tooltip.className = "chart-tooltip";
+  wrap.appendChild(tooltip);
+
+  const renderTooltip = (event) => {
+    const state = chartStates.get(id);
+    if (!state) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * (canvas.width / rect.width);
+    const nearest = Math.min(
+      state.labels.length - 1,
+      Math.max(
+        0,
+        state.labels.reduce((best, _label, index) => {
+          const currentDistance = Math.abs(state.series[0].points[index].x - x);
+          const bestDistance = Math.abs(state.series[0].points[best].x - x);
+          return currentDistance < bestDistance ? index : best;
+        }, 0)
+      )
+    );
+
+    drawCharts();
+    const ctx = canvas.getContext("2d");
+    const pointX = state.series[0].points[nearest].x;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.18)";
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.moveTo(pointX, 40);
+    ctx.lineTo(pointX, canvas.height - 52);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    state.series.forEach((line) => {
+      const point = line.points[nearest];
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = line.color;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#f2f5ff";
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    tooltip.innerHTML = `
+      <strong>${state.labels[nearest]}</strong>
+      ${state.series
+        .map((line) => `<span style="color:${line.color}">${line.key === "revenue" ? "Receita" : line.key === "profit" ? "Lucro" : "Custo"}: ${currency(line.values[nearest])}</span>`)
+        .join("")}
+    `;
+    tooltip.classList.add("is-visible");
+    const tooltipX = Math.min(rect.width - 170, Math.max(14, event.clientX - rect.left + 14));
+    const tooltipY = Math.max(14, event.clientY - rect.top - 12);
+    tooltip.style.left = `${tooltipX}px`;
+    tooltip.style.top = `${tooltipY}px`;
+  };
+
+  canvas.addEventListener("mousemove", renderTooltip);
+  canvas.addEventListener("mouseleave", () => {
+    tooltip.classList.remove("is-visible");
+    drawCharts();
+  });
 }
 
 function sparkline(values, color) {
@@ -1867,9 +1971,10 @@ function sparkline(values, color) {
       const x = index * stepX;
       const normalized = (value - min) / Math.max(max - min, 1);
       const y = height - normalized * (height - 6) - 2;
-      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
-    })
-    .join(" ");
+      return { x, y };
+    });
+  const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
+  const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`;
 
   return `
     <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
@@ -1879,7 +1984,8 @@ function sparkline(values, color) {
           <stop offset="100%" stop-color="${color}" stop-opacity="0"></stop>
         </linearGradient>
       </defs>
-      <path d="${points}" stroke="${color}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+      <path d="${areaPath}" fill="url(#spark-fill-${slug(color)})"></path>
+      <path d="${linePath}" stroke="${color}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
   `;
 }
@@ -1954,12 +2060,16 @@ function iconMarkup(name) {
 
 function submitCost(event) {
   event.preventDefault();
+  if (!validateForm(event.currentTarget)) {
+    showToast("Preencha os campos obrigatórios do custo antes de salvar.", "danger");
+    return;
+  }
   data.costs.unshift({
     id: `cost-${Date.now()}`,
     category: document.querySelector("#cost-type").value,
     supplier: document.querySelector("#cost-supplier").value.trim(),
-    value: Number(document.querySelector("#cost-value").value),
-    date: document.querySelector("#cost-date").value,
+    value: parseCurrencyInput(document.querySelector("#cost-value").value),
+    date: toIsoDate(document.querySelector("#cost-date").value),
     method: document.querySelector("#cost-method").value,
     status: document.querySelector("#cost-status").value,
     description: document.querySelector("#cost-note").value.trim() || "Sem descrição adicional",
@@ -1973,16 +2083,20 @@ function submitCost(event) {
 
 function submitRemessa(event) {
   event.preventDefault();
+  if (!validateForm(event.currentTarget)) {
+    showToast("Preencha os campos obrigatórios da operação antes de salvar.", "danger");
+    return;
+  }
   data.remessas.unshift({
     id: document.querySelector("#remessa-id").value.trim(),
     operator: document.querySelector("#remessa-operator").value.trim(),
     network: document.querySelector("#remessa-network").value.trim(),
     platform: document.querySelector("#remessa-platform").value.trim(),
-    value: Number(document.querySelector("#remessa-value").value),
+    value: parseCurrencyInput(document.querySelector("#remessa-value").value),
     status: document.querySelector("#remessa-status").value,
     source: document.querySelector("#remessa-source").value.trim(),
     target: document.querySelector("#remessa-target").value.trim(),
-    date: document.querySelector("#remessa-date").value,
+    date: toIsoDate(document.querySelector("#remessa-date").value),
     roi: Number(document.querySelector("#remessa-roi").value),
     note: document.querySelector("#remessa-note").value.trim() || "Sem observação",
   });
@@ -1995,7 +2109,7 @@ function submitRemessa(event) {
 
 function fillRemessaDefaults() {
   document.querySelector("#remessa-id").value = nextRemessaId();
-  document.querySelector("#remessa-date").value = today();
+  document.querySelector("#remessa-date").value = formatDisplayDate(today());
 }
 
 function importJson(event) {
@@ -2006,7 +2120,7 @@ function importJson(event) {
     try {
       const parsed = JSON.parse(String(reader.result));
       if (!parsed.version) throw new Error("invalid");
-      data = parsed;
+      data = normalizeDataShape(parsed);
       persistData();
       showToast("Base importada com sucesso.", "good");
       render();
@@ -2020,7 +2134,7 @@ function importJson(event) {
 
 async function resetData() {
   const response = await fetch("data/seed.json");
-  data = await response.json();
+  data = normalizeDataShape(await response.json());
   persistData();
   showToast("Base restaurada para o modelo inicial.", "alert");
   render();
@@ -2039,9 +2153,11 @@ function exportJson() {
 
 function openDialog(id) {
   if (id === "cost-dialog") {
-    document.querySelector("#cost-date").value = today();
+    document.querySelector("#cost-date").value = formatDisplayDate(today());
   }
-  document.getElementById(id).showModal();
+  const dialog = document.getElementById(id);
+  dialog.showModal();
+  dialog.querySelector("input, select, textarea")?.focus();
 }
 
 function closeDialog(id) {
@@ -2133,6 +2249,36 @@ function compactPlain(value) {
   return String(value);
 }
 
+function parseCurrencyInput(value) {
+  const normalized = String(value || "")
+    .replace(/\s/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/[^\d.-]/g, "");
+  return Number(normalized || 0);
+}
+
+function formatCurrencyInput(value) {
+  const amount = Number(value || 0);
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+function formatDisplayDate(value) {
+  if (!value) return "—";
+  const [year, month, day] = String(value).split("-");
+  if (!year || !month || !day) return String(value);
+  return `${day}/${month}/${year}`;
+}
+
+function toIsoDate(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (digits.length !== 8) return today();
+  return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}`;
+}
+
 function labelRange(value) {
   return {
     "7d": "7D",
@@ -2152,6 +2298,117 @@ function formatDateTime(date) {
     dateStyle: "short",
     timeStyle: "short",
   }).format(date);
+}
+
+function formatTaskWhen(value) {
+  const map = {
+    HOJE: "Hoje",
+    ONTEM: "Ontem",
+    AMANHÃ: "Amanhã",
+    AMANHÃƒ: "Amanhã",
+  };
+  const raw = String(value || "").trim();
+  if (map[raw]) return map[raw];
+  if (/^\d{1,2}H$/i.test(raw)) return "Hoje";
+  return capitalize(raw.toLowerCase());
+}
+
+function formatTimelineTime(item) {
+  if (item.timestamp) return formatRelativeTime(item.timestamp);
+  return String(item.time || "Agora");
+}
+
+function formatRelativeTime(timestamp) {
+  const diffMinutes = Math.max(0, Math.round((Date.now() - new Date(timestamp).getTime()) / 60000));
+  if (diffMinutes <= 1) return "Agora";
+  if (diffMinutes < 60) return `${diffMinutes} min`;
+  const hours = Math.floor(diffMinutes / 60);
+  return `${hours} h`;
+}
+
+function handleCurrencyInput(event) {
+  const digits = event.target.value.replace(/\D/g, "");
+  const amount = Number(digits || 0) / 100;
+  event.target.value = digits ? formatCurrencyInput(amount) : "";
+}
+
+function handleCurrencyBlur(event) {
+  if (!event.target.value) return;
+  event.target.value = formatCurrencyInput(parseCurrencyInput(event.target.value));
+}
+
+function handleDateInput(event) {
+  const digits = event.target.value.replace(/\D/g, "").slice(0, 8);
+  let masked = digits;
+  if (digits.length > 2) masked = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  if (digits.length > 4) masked = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+  event.target.value = masked;
+}
+
+function handleDateBlur(event) {
+  const digits = event.target.value.replace(/\D/g, "");
+  if (digits.length === 8) {
+    event.target.value = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+  }
+}
+
+function validateForm(form) {
+  let isValid = true;
+  form.querySelectorAll("[required]").forEach((field) => {
+    clearFieldError({ target: field });
+    const value = field.value.trim();
+    if (!value) {
+      setFieldError(field, "Campo obrigatório.");
+      isValid = false;
+      return;
+    }
+    if (field.id.includes("date") && !/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+      setFieldError(field, "Use o formato dd/mm/aaaa.");
+      isValid = false;
+      return;
+    }
+  });
+  return isValid;
+}
+
+function setFieldError(field, message) {
+  field.classList.add("is-invalid");
+  field.setAttribute("aria-invalid", "true");
+  let node = field.parentElement?.querySelector(".field-error");
+  if (!node) {
+    node = document.createElement("small");
+    node.className = "field-error";
+    field.parentElement?.appendChild(node);
+  }
+  node.textContent = message;
+}
+
+function clearFieldError(event) {
+  const field = event.target;
+  field.classList.remove("is-invalid");
+  field.removeAttribute("aria-invalid");
+  field.parentElement?.querySelector(".field-error")?.remove();
+}
+
+function normalizeDataShape(source) {
+  const snapshot = structuredClone(source);
+  snapshot.tasks = (snapshot.tasks || []).map((task) => ({
+    ...task,
+    when: formatTaskWhen(task.when),
+  }));
+  snapshot.timeline = (snapshot.timeline || []).map((item, index) => ({
+    ...item,
+    timestamp: item.timestamp || legacyTimelineTimestamp(item.time, index),
+  }));
+  return snapshot;
+}
+
+function legacyTimelineTimestamp(value, index = 0) {
+  const raw = String(value || "").trim().toUpperCase();
+  if (raw === "AGORA") return new Date(Date.now() - index * 15000).toISOString();
+  if (/^\d+MIN$/.test(raw)) return new Date(Date.now() - Number(raw.replace("MIN", "")) * 60000).toISOString();
+  if (/^\d+H$/.test(raw)) return new Date(Date.now() - Number(raw.replace("H", "")) * 3600000).toISOString();
+  return new Date(Date.now() - index * 45 * 60000).toISOString();
 }
 
 function nextRemessaId() {
