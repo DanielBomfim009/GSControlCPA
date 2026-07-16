@@ -249,6 +249,36 @@ function handleClick(event) {
 }
 
 function runAction(action) {
+  if (action === "create-operator") {
+    createOperator();
+    render();
+    return;
+  }
+
+  if (action === "create-manager") {
+    createManager();
+    render();
+    return;
+  }
+
+  if (action === "create-network") {
+    createNetwork();
+    render();
+    return;
+  }
+
+  if (action === "create-platform") {
+    createPlatform();
+    render();
+    return;
+  }
+
+  if (action === "create-pix") {
+    createPixKey();
+    render();
+    return;
+  }
+
   switch (action) {
     case "go-home":
       ui.section = "dashboard";
@@ -792,6 +822,36 @@ function renderOperadores() {
       </article>
     </section>
 
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Fluxo do dia</div>
+            <h3>Leitura de remessas</h3>
+            <p>Visão rápida do tráfego operacional</p>
+          </div>
+        </div>
+        <div class="signal-list">
+          ${renderSignalCard("Concluídas", String(completed.length), `${completed.length ? currency(sum(completed, "value")) : "Sem volume"} liquidados`, "good")}
+          ${renderSignalCard("Processando", String(processing.length), "Operações exigindo acompanhamento ativo", processing.length ? "alert" : "good")}
+          ${renderSignalCard("Maior remessa", topRemessa ? topRemessa.id : "—", topRemessa ? `${currency(topRemessa.value)} • ${topRemessa.network}` : "Sem dados", "good")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Roteamento</div>
+            <h3>Origem x destino</h3>
+            <p>Principais pares em circulação</p>
+          </div>
+        </div>
+        <div class="kpi-list">
+          ${rows.slice(0, 4).map((item) => renderKpiRow(item.id, `${item.source} → ${item.target}`, `${item.operator} • ROI ${item.roi}%`)).join("")}
+        </div>
+      </article>
+    </section>
+
     <section class="table-card">
       <div class="table-toolbar">
         <div class="table-search">
@@ -1289,6 +1349,9 @@ function renderRemessas() {
   const rows = data.remessas.filter((item) =>
     matchesSearch([item.id, item.operator, item.network, item.platform, item.status, item.source, item.target])
   );
+  const completed = rows.filter((item) => item.status === "concluida");
+  const processing = rows.filter((item) => item.status === "processando");
+  const topRemessa = [...rows].sort((a, b) => b.value - a.value)[0];
 
   return `
     <section class="metrics-grid">
@@ -1405,6 +1468,152 @@ function renderKpiRow(label, value, note) {
       <strong>${escapeHtml(value)}</strong>
     </div>
   `;
+}
+
+function createOperator() {
+  const firstNames = ["Renan", "Thiago", "Vitória", "Larissa", "Diego", "Matheus", "Bianca", "Samuel"];
+  const lastNames = ["Pereira", "Melo", "Alves", "Rocha", "Santos", "Ribeiro", "Lima", "Silva"];
+  const cities = ["Fortaleza/CE", "Recife/PE", "Salvador/BA", "Natal/RN", "Maceió/AL"];
+  const networks = data.networks.length ? data.networks : [{ name: "Alpha Network" }];
+  const platforms = data.platforms.length ? data.platforms : [{ name: "Fortuna Pro" }];
+  const managers = data.managers.length ? data.managers : [{ name: "Daniel Bomfim" }];
+
+  const name = `${randomFrom(firstNames)} ${randomFrom(lastNames)}`;
+  const network = randomFrom(networks);
+  const platform = randomFrom(platforms);
+  const manager = randomFrom(managers);
+  const id = `OP-${2000 + data.operators.length}`;
+
+  data.operators.unshift({
+    id,
+    name,
+    manager: manager.name,
+    network: network.name,
+    platform: platform.name,
+    status: "online",
+    goalPct: 52 + (data.operators.length % 45),
+    profit: 2800 + data.operators.length * 940,
+    roi: 35 + data.operators.length * 6,
+    lastSeen: "agora",
+    city: randomFrom(cities),
+  });
+
+  pushActivity("Novo operador", `${name} entrou na base ${network.name}.`, "agora");
+  pushTimeline("operador", `Operador ${name} cadastrado`, `${network.name} • Plataforma ${platform.name}`, `${manager.name} • Gerente`, "AGORA");
+  persistData();
+  showToast(`Operador ${name} criado localmente.`, "good");
+}
+
+function createManager() {
+  const firstNames = ["Caio", "Isabela", "Paulo", "Nicolas", "Amanda", "Joana"];
+  const lastNames = ["Torres", "Moura", "Neves", "Campos", "Ferreira", "Costa"];
+  const roles = ["Operações", "Financeiro", "Growth", "Estratégia", "Comercial"];
+  const name = `${randomFrom(firstNames)} ${randomFrom(lastNames)}`;
+  const id = `GER-${1000 + data.managers.length}`;
+
+  data.managers.unshift({
+    id,
+    name,
+    role: randomFrom(roles),
+    email: `${slug(name)}@gscontrol.com`,
+    team: 6 + (data.managers.length % 15),
+    profit: 90000 + data.managers.length * 17000,
+    status: "ativo",
+  });
+
+  pushActivity("Novo gerente", `${name} assumiu uma nova frente operacional.`, "agora");
+  pushTimeline("edição", `Gerente ${name} cadastrado`, `Nova liderança vinculada ao núcleo GS`, "Sistema GS", "AGORA");
+  persistData();
+  showToast(`Gerente ${name} criado localmente.`, "good");
+}
+
+function createNetwork() {
+  const baseNames = ["Atlas", "Pulse", "Vertex", "Nova", "Helix", "Sigma"];
+  const name = `${randomFrom(baseNames)} Network`;
+  const code = `RED-${100 + data.networks.length}`;
+  const mark = name.charAt(0).toUpperCase();
+  const palette = [
+    "linear-gradient(145deg,#5a8dff,#4077ef)",
+    "linear-gradient(145deg,#24d38d,#13946f)",
+    "linear-gradient(145deg,#f2b31a,#c78d08)",
+    "linear-gradient(145deg,#9d67ff,#6c46d9)",
+  ];
+
+  data.networks.unshift({
+    code,
+    name,
+    mark,
+    status: "ativa",
+    profit: 180000 + data.networks.length * 24000,
+    roi: 180 + data.networks.length * 12,
+    operators: 8 + data.networks.length,
+    goalPct: 58 + (data.networks.length % 36),
+    performance: 61 + (data.networks.length % 24),
+    color: randomFrom(palette),
+  });
+
+  pushActivity("Nova rede", `${name} entrou no mapa operacional.`, "agora");
+  pushTimeline("edição", `Rede ${name} criada`, `Cluster ${code} adicionado ao controle`, "Sistema GS", "AGORA");
+  persistData();
+  showToast(`Rede ${name} criada localmente.`, "good");
+}
+
+function createPlatform() {
+  const names = ["OrbitPlay", "CrystalBet", "FalconWin", "PrimeRoll", "StormX"];
+  const categories = ["Slots", "Cassino", "Poker", "Live", "Esportes"];
+  const network = data.networks.length ? randomFrom(data.networks) : { name: "Alpha Network" };
+  const name = randomFrom(names);
+
+  data.platforms.unshift({
+    name,
+    domain: `https://${slug(name)}.io`,
+    network: network.name,
+    category: randomFrom(categories),
+    operators: 4 + (data.platforms.length % 18),
+    profit: 64000 + data.platforms.length * 14000,
+    goalPct: 42 + (data.platforms.length % 48),
+    status: "ativa",
+  });
+
+  pushActivity("Nova plataforma", `${name} conectada em ${network.name}.`, "agora");
+  pushTimeline("edição", `Plataforma ${name} adicionada`, `${network.name} • nova integração operacional`, "Sistema GS", "AGORA");
+  persistData();
+  showToast(`Plataforma ${name} criada localmente.`, "good");
+}
+
+function createPixKey() {
+  const banks = ["Nubank", "Inter", "Santander", "Itaú", "Mercado Pago"];
+  const alias = `Conta apoio ${data.pix.length + 1}`;
+  const key = `${Date.now()}@gscontrol.local`;
+
+  data.pix.unshift({
+    id: `pix-${Date.now()}`,
+    alias,
+    key,
+    bank: randomFrom(banks),
+    owner: data.profile.owner,
+    usage: data.pix.length % 2 === 0 ? "alto giro" : "contingência",
+    status: "ativa",
+  });
+
+  pushActivity("Nova chave PIX", `${alias} adicionada ao cofre local.`, "agora");
+  pushTimeline("pix", `Chave ${alias} cadastrada`, `Nova rota PIX criada para suporte operacional`, data.profile.owner, "AGORA");
+  persistData();
+  showToast(`Chave PIX ${alias} criada localmente.`, "good");
+}
+
+function pushActivity(title, description, time) {
+  data.activity.unshift({ title, description, time });
+  data.activity = data.activity.slice(0, 8);
+}
+
+function pushTimeline(type, title, subtitle, author, time) {
+  data.timeline.unshift({ type, title, subtitle, author, time });
+  data.timeline = data.timeline.slice(0, 18);
+}
+
+function randomFrom(items) {
+  return items[Math.floor(Math.random() * items.length)];
 }
 
 function renderMetricCard({ icon, label, value, change, tone, spark = [], sparkColor = "#4d8dff" }) {
