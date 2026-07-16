@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GS Control CPA | Centro de Operações</title>
+    <title>GS Control CPA | Control OS</title>
     <meta
       name="description"
-      content="Painel operacional privado com identidade exclusiva, dados locais e módulos completos para operação, faturamento, redes e custos."
+      content="Painel operacional privado com visual premium, dados locais e gestão completa de operadores, redes, metas, finanças e custos."
     />
-    <meta name="theme-color" content="#071019" />
+    <meta name="theme-color" content="#0b0d12" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="icon" href="assets/brand/gs-symbol.svg" type="image/svg+xml" />
@@ -21,127 +21,164 @@
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand-card">
-          <div class="brand">
-            <img src="assets/brand/gs-symbol.svg" alt="GS Control CPA" class="brand__logo" />
-            <div class="brand__copy">
-              <strong>GS Control CPA</strong>
-              <small>Centro privado de operação</small>
-            </div>
-          </div>
-          <div class="brand-card__status">
-            <span class="brand-card__dot"></span>
-            Ambiente local seguro
-          </div>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar__head">
+          <button class="brand-button" data-action="go-home" aria-label="Ir para dashboard">
+            <span class="brand-button__mark">GS</span>
+            <span class="brand-button__copy">
+              <strong>GSCONTROL</strong>
+              <small>CONTROL OS</small>
+            </span>
+          </button>
         </div>
 
-        <nav class="sidebar__nav">
-          <button class="side-link is-active" data-section="dashboard">
-            <span class="side-link__glyph">◎</span>
-            <span class="side-link__copy">
-              <strong>Visão geral</strong>
-              <small>Pulso da operação</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="operadores">
-            <span class="side-link__glyph">◌</span>
-            <span class="side-link__copy">
-              <strong>Operadores</strong>
-              <small>Equipe e folha</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="redes">
-            <span class="side-link__glyph">◇</span>
-            <span class="side-link__copy">
-              <strong>Redes</strong>
-              <small>Score e rentabilidade</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="faturamento">
-            <span class="side-link__glyph">▣</span>
-            <span class="side-link__copy">
-              <strong>Faturamento</strong>
-              <small>Receita e histórico</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="custos">
-            <span class="side-link__glyph">△</span>
-            <span class="side-link__copy">
-              <strong>Custos</strong>
-              <small>Despesas e categorias</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="pix">
-            <span class="side-link__glyph">✦</span>
-            <span class="side-link__copy">
-              <strong>PIX</strong>
-              <small>Cofre de chaves</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="afiliados">
-            <span class="side-link__glyph">⟡</span>
-            <span class="side-link__copy">
-              <strong>Afiliados</strong>
-              <small>Parceiros e repasses</small>
-            </span>
-          </button>
-          <button class="side-link" data-section="assinatura">
-            <span class="side-link__glyph">⬢</span>
-            <span class="side-link__copy">
-              <strong>Governança</strong>
-              <small>Acesso e segurança</small>
-            </span>
-          </button>
+        <nav class="nav-groups">
+          <div class="nav-group">
+            <p class="nav-group__label">Principal</p>
+            <button class="nav-link is-active" data-section="dashboard">
+              <span class="nav-link__icon" data-icon="dashboard"></span>
+              <span class="nav-link__text">Dashboard</span>
+            </button>
+            <button class="nav-link" data-section="meu-dia">
+              <span class="nav-link__icon" data-icon="sun"></span>
+              <span class="nav-link__text">Meu Dia</span>
+            </button>
+            <button class="nav-link" data-section="timeline">
+              <span class="nav-link__icon" data-icon="activity"></span>
+              <span class="nav-link__text">Timeline</span>
+            </button>
+            <button class="nav-link" data-section="favoritos">
+              <span class="nav-link__icon" data-icon="star"></span>
+              <span class="nav-link__text">Favoritos</span>
+            </button>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-group__label">Operação</p>
+            <button class="nav-link" data-section="operadores">
+              <span class="nav-link__icon" data-icon="users"></span>
+              <span class="nav-link__text">Operadores</span>
+            </button>
+            <button class="nav-link" data-section="gerentes">
+              <span class="nav-link__icon" data-icon="user-cog"></span>
+              <span class="nav-link__text">Gerentes</span>
+            </button>
+            <button class="nav-link" data-section="redes">
+              <span class="nav-link__icon" data-icon="network"></span>
+              <span class="nav-link__text">Redes</span>
+            </button>
+            <button class="nav-link" data-section="plataformas">
+              <span class="nav-link__icon" data-icon="layers"></span>
+              <span class="nav-link__text">Plataformas</span>
+            </button>
+            <button class="nav-link" data-section="metas">
+              <span class="nav-link__icon" data-icon="target"></span>
+              <span class="nav-link__text">Metas</span>
+            </button>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-group__label">Financeiro</p>
+            <button class="nav-link" data-section="financeiro">
+              <span class="nav-link__icon" data-icon="banknote"></span>
+              <span class="nav-link__text">Financeiro</span>
+            </button>
+            <button class="nav-link" data-section="custos">
+              <span class="nav-link__icon" data-icon="receipt"></span>
+              <span class="nav-link__text">Custos</span>
+            </button>
+            <button class="nav-link" data-section="pix">
+              <span class="nav-link__icon" data-icon="wallet"></span>
+              <span class="nav-link__text">PIX</span>
+            </button>
+            <button class="nav-link" data-section="remessas">
+              <span class="nav-link__icon" data-icon="repeat"></span>
+              <span class="nav-link__text">Remessas</span>
+            </button>
+          </div>
+
+          <div class="nav-group">
+            <p class="nav-group__label">Inteligência</p>
+            <button class="nav-link" data-section="relatorios">
+              <span class="nav-link__icon" data-icon="chart"></span>
+              <span class="nav-link__text">Relatórios</span>
+            </button>
+          </div>
         </nav>
 
-        <section class="sidebar__vault">
-          <p class="eyebrow">Assinatura visual</p>
-          <strong>Núcleo GS</strong>
-          <span>
-            Interface exclusiva com dados locais, exportação em JSON e persistência offline para uso
-            próprio.
-          </span>
-        </section>
+        <div class="sidebar__foot">
+          <div class="plan-card">
+            <div class="plan-card__dot"></div>
+            <div>
+              <strong>Plano Enterprise</strong>
+              <small>Ativo • renova em 24 dias</small>
+            </div>
+          </div>
 
-        <div class="sidebar__footer">
-          <button id="import-button" class="ghost-button ghost-button--block">Importar base</button>
-          <button id="export-button" class="ghost-button ghost-button--block">Exportar base</button>
-          <button id="reset-button" class="ghost-button ghost-button--block">Restaurar modelo</button>
-          <input id="import-input" type="file" accept=".json,application/json" hidden />
+          <div class="sidebar-tools">
+            <button id="import-button" class="side-mini">Importar</button>
+            <button id="export-button" class="side-mini">Exportar</button>
+            <button id="reset-button" class="side-mini">Restaurar</button>
+            <input id="import-input" type="file" accept=".json,application/json" hidden />
+          </div>
+
+          <button class="sidebar-collapse" data-action="toggle-sidebar">
+            <span class="sidebar-collapse__icon" data-icon="chevrons-left"></span>
+            <span class="sidebar-collapse__text">Recolher</span>
+          </button>
         </div>
       </aside>
 
       <main class="workspace">
         <header class="topbar">
-          <div class="topbar__banner">
-            <div class="topbar__intro">
-              <p class="eyebrow">Operação privada</p>
-              <strong id="banner-title">GS Control CPA</strong>
-              <span id="banner-subtitle">Painel local com leitura operacional, financeira e tática.</span>
-            </div>
+          <div class="searchbar">
+            <span class="searchbar__icon" data-icon="search"></span>
+            <input
+              id="global-search"
+              type="search"
+              placeholder="Pesquisar operadores, redes, plataformas..."
+              autocomplete="off"
+            />
+            <span class="searchbar__shortcut">⌘K</span>
+          </div>
 
-            <div class="topbar__meta">
-              <span class="top-chip top-chip--accent">GitHub Pages ativo</span>
-              <span class="top-chip top-chip--online">Online</span>
-              <button class="top-chip" data-action="refresh">Atualizar leitura</button>
-            </div>
+          <div class="topbar__actions">
+            <button class="icon-chip" title="Rede global">
+              <span data-icon="globe"></span>
+            </button>
+            <button class="icon-chip" title="Mensagens">
+              <span data-icon="message"></span>
+            </button>
+            <button class="icon-chip" title="Alertas">
+              <span data-icon="bell"></span>
+            </button>
+            <button class="icon-chip" title="Tema">
+              <span data-icon="moon"></span>
+            </button>
+
+            <button class="profile-chip" data-action="refresh">
+              <span class="profile-chip__mark">GS</span>
+              <span class="profile-chip__copy">
+                <strong id="profile-name">Daniel Bomfim</strong>
+                <small id="profile-role">Admin • Enterprise</small>
+              </span>
+            </button>
           </div>
         </header>
 
-        <section class="hero">
-          <div class="hero__content">
-            <p class="eyebrow">Controle proprietário</p>
-            <h1 id="page-title">Visão geral</h1>
-            <p id="page-description">
-              Um cockpit visual para acompanhar desempenho, alertas, equipe, redes e fluxo financeiro da
-              sua operação.
-            </p>
+        <section class="page-header">
+          <div class="page-header__copy">
+            <div class="breadcrumb" id="breadcrumb">Principal • Dashboard</div>
+            <h1 id="page-title">Dashboard</h1>
+            <p id="page-description">Como está sua operação agora.</p>
           </div>
 
-          <div class="hero__actions">
-            <button id="open-remessa-modal" class="primary-button">Nova operação</button>
-            <button id="open-cost-modal" class="ghost-button">Adicionar custo</button>
+          <div class="page-header__actions">
+            <button class="range-chip" data-action="cycle-range">
+              <span data-icon="calendar"></span>
+              <span id="range-label">30 dias</span>
+            </button>
+            <div id="section-actions"></div>
           </div>
         </section>
 
@@ -153,45 +190,68 @@
       <form id="cost-form" class="dialog__panel" method="dialog">
         <div class="dialog__header">
           <div>
-            <p class="eyebrow">Custos operacionais</p>
-            <h2>Novo lançamento de custo</h2>
+            <p class="dialog__eyebrow">Custos</p>
+            <h2>Novo custo</h2>
           </div>
-          <button type="button" class="icon-button" data-close-dialog="cost-dialog">Fechar</button>
+          <button type="button" class="dialog-close" data-close-dialog="cost-dialog">×</button>
         </div>
 
         <div class="form-grid">
           <label>
             Categoria
             <select id="cost-type" required>
-              <option value="Proxy">Proxy</option>
-              <option value="SMS">SMS</option>
-              <option value="Postagem">Postagem</option>
-              <option value="Bot">Bot / Automação</option>
-              <option value="VPS">VPS / Servidor</option>
-              <option value="Outros">Outros</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Salários">Salários</option>
+              <option value="Software">Software</option>
+              <option value="Infra">Infra</option>
+              <option value="Impostos">Impostos</option>
+              <option value="Serviços">Serviços</option>
             </select>
           </label>
+
+          <label>
+            Fornecedor
+            <input id="cost-supplier" required />
+          </label>
+
           <label>
             Valor (R$)
             <input id="cost-value" type="number" min="0" step="0.01" required />
           </label>
+
           <label>
             Data
             <input id="cost-date" type="date" required />
           </label>
+
           <label>
-            Responsável
-            <input id="cost-owner" required />
+            Forma
+            <select id="cost-method" required>
+              <option value="PIX">PIX</option>
+              <option value="TED">TED</option>
+              <option value="Boleto">Boleto</option>
+              <option value="Cartão">Cartão</option>
+            </select>
           </label>
+
+          <label>
+            Status
+            <select id="cost-status" required>
+              <option value="pago">Pago</option>
+              <option value="pendente">Pendente</option>
+              <option value="vencido">Vencido</option>
+            </select>
+          </label>
+
           <label class="form-grid__full">
-            Observação
-            <textarea id="cost-note" rows="4" placeholder="Descreva a finalidade do custo"></textarea>
+            Descrição
+            <textarea id="cost-note" rows="4" placeholder="Descreva o custo"></textarea>
           </label>
         </div>
 
         <div class="dialog__footer">
-          <button type="button" class="ghost-button" data-close-dialog="cost-dialog">Cancelar</button>
-          <button type="submit" class="primary-button">Salvar custo</button>
+          <button type="button" class="button button--ghost" data-close-dialog="cost-dialog">Cancelar</button>
+          <button type="submit" class="button button--primary">Salvar custo</button>
         </div>
       </form>
     </dialog>
@@ -200,10 +260,10 @@
       <form id="remessa-form" class="dialog__panel" method="dialog">
         <div class="dialog__header">
           <div>
-            <p class="eyebrow">Fluxo financeiro</p>
-            <h2>Nova operação / remessa</h2>
+            <p class="dialog__eyebrow">Remessas</p>
+            <h2>Nova operação</h2>
           </div>
-          <button type="button" class="icon-button" data-close-dialog="remessa-dialog">Fechar</button>
+          <button type="button" class="dialog-close" data-close-dialog="remessa-dialog">×</button>
         </div>
 
         <div class="form-grid">
@@ -216,15 +276,23 @@
             <input id="remessa-operator" required />
           </label>
           <label>
+            Rede
+            <input id="remessa-network" required />
+          </label>
+          <label>
+            Plataforma
+            <input id="remessa-platform" required />
+          </label>
+          <label>
             Valor (R$)
             <input id="remessa-value" type="number" min="0" step="0.01" required />
           </label>
           <label>
             Status
             <select id="remessa-status" required>
-              <option value="pendente">Pendente</option>
-              <option value="processando">Processando</option>
               <option value="concluida">Concluída</option>
+              <option value="processando">Trabalhando</option>
+              <option value="pendente">Pendente</option>
             </select>
           </label>
           <label>
@@ -239,15 +307,19 @@
             Data
             <input id="remessa-date" type="date" required />
           </label>
+          <label>
+            ROI (%)
+            <input id="remessa-roi" type="number" step="0.1" required />
+          </label>
           <label class="form-grid__full">
             Observação
-            <textarea id="remessa-note" rows="3" placeholder="Anote algum detalhe importante"></textarea>
+            <textarea id="remessa-note" rows="4" placeholder="Anote algum detalhe importante"></textarea>
           </label>
         </div>
 
         <div class="dialog__footer">
-          <button type="button" class="ghost-button" data-close-dialog="remessa-dialog">Cancelar</button>
-          <button type="submit" class="primary-button">Salvar operação</button>
+          <button type="button" class="button button--ghost" data-close-dialog="remessa-dialog">Cancelar</button>
+          <button type="submit" class="button button--primary">Salvar operação</button>
         </div>
       </form>
     </dialog>

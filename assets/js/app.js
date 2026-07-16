@@ -1,62 +1,146 @@
-const APP_VERSION = "2026.07.gs-control-cpa.v2";
-const STORAGE_KEY = "gs-control-cpa-local-v2";
+const APP_VERSION = "2026.07.gs-control-cpa.v3";
+const STORAGE_KEY = "gs-control-cpa-local-v3";
+const UI_KEY = "gs-control-cpa-ui-v3";
 
 const ui = {
   section: "dashboard",
-  operatorsTab: "ranking",
-  billingTab: "overview",
-  billingRange: "30d",
+  range: "30d",
+  search: "",
+  sidebarCollapsed: false,
+  timelineFilter: "Todos",
 };
 
 let data = null;
 
-const pageMeta = {
+const content = document.querySelector("#app-content");
+const titleNode = document.querySelector("#page-title");
+const descriptionNode = document.querySelector("#page-description");
+const breadcrumbNode = document.querySelector("#breadcrumb");
+const actionsNode = document.querySelector("#section-actions");
+const searchNode = document.querySelector("#global-search");
+const toastRegion = document.querySelector("#toast-region");
+
+const sectionMeta = {
   dashboard: {
-    title: "Visão geral",
-    description: "Leitura tática, performance consolidada, alertas e atividade recente da operação.",
+    breadcrumb: "Principal › Dashboard",
+    title: "Dashboard",
+    description: "Como está sua operação agora",
+    actionLabel: "Nova operação",
+    action: "open-remessa",
+  },
+  "meu-dia": {
+    breadcrumb: "Principal › Meu Dia",
+    title: "Meu Dia",
+    description: "Tarefas, metas e pontos de atenção da sua rotina",
+    actionLabel: "Nova tarefa",
+    action: "create-task",
+  },
+  timeline: {
+    breadcrumb: "Principal › Timeline",
+    title: "Timeline Global",
+    description: "Todas as atividades relevantes do sistema em ordem cronológica",
+    actionLabel: "Atualizar timeline",
+    action: "refresh",
+  },
+  favoritos: {
+    breadcrumb: "Principal › Favoritos",
+    title: "Favoritos",
+    description: "Atalhos rápidos para tudo que você mais consulta",
+    actionLabel: "Atualizar visão",
+    action: "refresh",
   },
   operadores: {
+    breadcrumb: "Operação › Operadores",
     title: "Operadores",
-    description: "Ranking, equipe, folha, convites e políticas de atuação dos operadores.",
+    description: "Desempenho, status, lucro e produtividade da equipe",
+    actionLabel: "Novo operador",
+    action: "create-operator",
+  },
+  gerentes: {
+    breadcrumb: "Operação › Gerentes",
+    title: "Gerentes",
+    description: "Equipe de liderança e desempenho por gerente",
+    actionLabel: "Novo gerente",
+    action: "create-manager",
   },
   redes: {
+    breadcrumb: "Operação › Redes",
     title: "Redes",
-    description: "Comparativo de redes, score operacional, risco, recomendação e lucratividade.",
+    description: "Clusters operacionais e distribuição de performance",
+    actionLabel: "Nova rede",
+    action: "create-network",
   },
-  faturamento: {
-    title: "Faturamento",
-    description: "Receita, margem, evolução, histórico de remessas e leitura financeira.",
+  plataformas: {
+    breadcrumb: "Operação › Plataformas",
+    title: "Plataformas",
+    description: "Integrações operacionais ativas em produção",
+    actionLabel: "Nova plataforma",
+    action: "create-platform",
+  },
+  metas: {
+    breadcrumb: "Operação › Metas",
+    title: "Metas",
+    description: "Sistema completo de metas com progresso em tempo real",
+    actionLabel: "Nova meta",
+    action: "raise-goal",
+  },
+  financeiro: {
+    breadcrumb: "Financeiro › Visão Geral",
+    title: "Financeiro",
+    description: "Visão consolidada de receita, custos e fluxo de caixa",
+    actionLabel: "Nova entrada",
+    action: "open-remessa",
   },
   custos: {
+    breadcrumb: "Financeiro › Custos",
     title: "Custos",
-    description: "Controle de gastos, categorias, impacto diário e saúde do caixa operacional.",
+    description: "Gestão detalhada de despesas e centros de custo",
+    actionLabel: "Novo custo",
+    action: "open-cost",
   },
   pix: {
+    breadcrumb: "Financeiro › PIX",
     title: "PIX",
-    description: "Cofre interno de chaves, status de uso, vínculo por banco e governança de repasse.",
+    description: "Gestão das chaves, roteamento e status operacional",
+    actionLabel: "Nova chave",
+    action: "create-pix",
   },
-  afiliados: {
-    title: "Afiliados",
-    description: "Parceiros estratégicos, participação, origem de tráfego e visão de relacionamento.",
+  remessas: {
+    breadcrumb: "Financeiro › Remessas",
+    title: "Remessas",
+    description: "Entrada, distribuição e acompanhamento de operações",
+    actionLabel: "Nova remessa",
+    action: "open-remessa",
   },
-  assinatura: {
-    title: "Governança",
-    description: "Regras locais, integridade da base, modo manutenção e segurança do painel.",
+  relatorios: {
+    breadcrumb: "Inteligência › Relatórios",
+    title: "Relatórios",
+    description: "Snapshots e exportações estratégicas da operação",
+    actionLabel: "Exportar visão",
+    action: "export-json",
   },
 };
 
-const content = document.querySelector("#app-content");
-const pageTitle = document.querySelector("#page-title");
-const pageDescription = document.querySelector("#page-description");
-const bannerTitle = document.querySelector("#banner-title");
-const bannerSubtitle = document.querySelector("#banner-subtitle");
-const toastRegion = document.querySelector("#toast-region");
-
 async function init() {
+  hydrateUi();
   await loadData();
-  attachGlobalEvents();
+  paintStaticIcons();
+  bindStaticEvents();
   render();
   registerServiceWorker();
+}
+
+function hydrateUi() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(UI_KEY) || "{}");
+    Object.assign(ui, saved);
+  } catch {
+    // noop
+  }
+}
+
+function persistUi() {
+  localStorage.setItem(UI_KEY, JSON.stringify(ui));
 }
 
 async function loadData() {
@@ -69,21 +153,21 @@ async function loadData() {
         return;
       }
     } catch {
-      // fallback para seed
+      // fallback
     }
   }
 
   const response = await fetch("data/seed.json");
   data = await response.json();
-  persist();
+  persistData();
 }
 
-function persist() {
+function persistData() {
   data.profile.updatedAt = formatDateTime(new Date());
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-function attachGlobalEvents() {
+function bindStaticEvents() {
   document.addEventListener("click", handleClick);
   document.querySelector("#cost-form").addEventListener("submit", submitCost);
   document.querySelector("#remessa-form").addEventListener("submit", submitRemessa);
@@ -93,16 +177,15 @@ function attachGlobalEvents() {
   document.querySelector("#import-input").addEventListener("change", importJson);
   document.querySelector("#export-button").addEventListener("click", exportJson);
   document.querySelector("#reset-button").addEventListener("click", resetData);
-  document.querySelector("#open-cost-modal").addEventListener("click", () => openDialog("cost-dialog"));
-  document.querySelector("#open-remessa-modal").addEventListener("click", () => {
-    fillRemessaDefaults();
-    openDialog("remessa-dialog");
+  searchNode.addEventListener("input", (event) => {
+    ui.search = event.target.value.trim().toLowerCase();
+    render();
   });
 }
 
 function handleClick(event) {
   const target = event.target.closest(
-    "[data-section], [data-tab], [data-range], [data-close-dialog], [data-action], [data-copy], [data-remove-cost], [data-remove-remessa], [data-toggle-pix]"
+    "[data-section], [data-action], [data-range], [data-close-dialog], [data-toggle-task], [data-timeline-filter], [data-row-action], [data-copy], [data-toggle-pix]"
   );
   if (!target) return;
 
@@ -112,16 +195,8 @@ function handleClick(event) {
     return;
   }
 
-  if (target.dataset.tab) {
-    const [scope, value] = target.dataset.tab.split(":");
-    if (scope === "operators") ui.operatorsTab = value;
-    if (scope === "billing") ui.billingTab = value;
-    render();
-    return;
-  }
-
   if (target.dataset.range) {
-    ui.billingRange = target.dataset.range;
+    ui.range = target.dataset.range;
     render();
     return;
   }
@@ -131,48 +206,66 @@ function handleClick(event) {
     return;
   }
 
+  if (target.dataset.timelineFilter) {
+    ui.timelineFilter = target.dataset.timelineFilter;
+    render();
+    return;
+  }
+
+  if (target.dataset.toggleTask) {
+    const task = data.tasks.find((item) => item.id === target.dataset.toggleTask);
+    if (!task) return;
+    task.done = !task.done;
+    persistData();
+    showToast(task.done ? "Tarefa concluída." : "Tarefa reaberta.", task.done ? "good" : "alert");
+    render();
+    return;
+  }
+
+  if (target.dataset.rowAction) {
+    showToast(`Ação "${target.dataset.rowAction}" simulada com sucesso.`, "good");
+    return;
+  }
+
   if (target.dataset.copy) {
-    copyValue(target.dataset.copy);
-    return;
-  }
-
-  if (target.dataset.removeCost) {
-    data.costs = data.costs.filter((item) => item.id !== target.dataset.removeCost);
-    persist();
-    showToast("Custo removido da base local.", "alert");
-    render();
-    return;
-  }
-
-  if (target.dataset.removeRemessa) {
-    data.remessas = data.remessas.filter((item) => item.id !== target.dataset.removeRemessa);
-    persist();
-    showToast("Operação removida do histórico local.", "alert");
-    render();
+    navigator.clipboard?.writeText(target.dataset.copy);
+    showToast("Conteúdo copiado para a área de transferência.", "good");
     return;
   }
 
   if (target.dataset.togglePix) {
-    const pix = data.pixKeys.find((item) => item.id === target.dataset.togglePix);
-    if (!pix) return;
-    pix.status = pix.status === "Ativa" ? "Em revisão" : "Ativa";
-    persist();
-    showToast(`Status da chave ${pix.alias} atualizado.`, "good");
+    const key = data.pix.find((item) => item.id === target.dataset.togglePix);
+    if (!key) return;
+    key.status = key.status === "ativa" ? "revisão" : "ativa";
+    persistData();
+    showToast(`Status da chave ${key.alias} atualizado.`, "good");
     render();
     return;
   }
 
   if (target.dataset.action) {
-    handleAction(target.dataset.action);
+    runAction(target.dataset.action);
   }
 }
 
-function handleAction(action) {
+function runAction(action) {
   switch (action) {
+    case "go-home":
+      ui.section = "dashboard";
+      render();
+      break;
+    case "toggle-sidebar":
+      ui.sidebarCollapsed = !ui.sidebarCollapsed;
+      persistUi();
+      renderShell();
+      break;
     case "refresh":
-      data.profile.updatedAt = formatDateTime(new Date());
-      persist();
+      persistData();
       showToast("Leitura da operação atualizada.", "good");
+      render();
+      break;
+    case "cycle-range":
+      ui.range = ui.range === "30d" ? "7d" : ui.range === "7d" ? "90d" : ui.range === "90d" ? "12m" : "30d";
       render();
       break;
     case "open-cost":
@@ -182,29 +275,33 @@ function handleAction(action) {
       fillRemessaDefaults();
       openDialog("remessa-dialog");
       break;
-    case "generate-invite":
-      generateInvite();
-      break;
-    case "toggle-maintenance":
-      data.governance.maintenance = !data.governance.maintenance;
-      persist();
-      showToast(
-        data.governance.maintenance ? "Modo manutenção ativado." : "Modo manutenção desativado.",
-        data.governance.maintenance ? "alert" : "good"
-      );
+    case "create-task":
+      data.tasks.unshift({
+        id: `task-${Date.now()}`,
+        title: "Nova tarefa criada manualmente",
+        when: "hoje",
+        done: false,
+      });
+      persistData();
+      showToast("Nova tarefa adicionada ao Meu Dia.", "good");
       render();
       break;
-    case "run-backup":
-      data.governance.lastBackup = formatDateTime(new Date());
-      persist();
-      showToast("Snapshot local marcado como atualizado.", "good");
-      render();
+    case "create-operator":
+    case "create-manager":
+    case "create-network":
+    case "create-platform":
+    case "create-pix":
+      showToast("Estrutura pronta para expansão. Posso aprofundar esse cadastro na próxima etapa.", "alert");
       break;
     case "raise-goal":
-      data.goals.monthly += 5000;
-      persist();
-      showToast("Meta mensal elevada em R$ 5.000.", "good");
+      data.goalsSummary.total += 1;
+      data.goalsSummary.inProgress += 1;
+      persistData();
+      showToast("Meta estratégica adicionada ao ciclo.", "good");
       render();
+      break;
+    case "export-json":
+      exportJson();
       break;
     default:
       break;
@@ -212,220 +309,205 @@ function handleAction(action) {
 }
 
 function render() {
-  updateShell();
+  renderShell();
   renderSection();
-  setActiveSidebar();
+  paintDynamicIcons();
+  drawCharts();
 }
 
-function updateShell() {
-  const meta = pageMeta[ui.section];
-  pageTitle.textContent = meta.title;
-  pageDescription.textContent = meta.description;
-  bannerTitle.textContent = `${data.brand.name} • ${data.profile.workspace}`;
-  bannerSubtitle.textContent = `${data.brand.tagline} • Atualizado em ${data.profile.updatedAt}`;
-}
-
-function setActiveSidebar() {
-  document.querySelectorAll(".side-link").forEach((button) => {
+function renderShell() {
+  document.body.classList.toggle("sidebar-collapsed", ui.sidebarCollapsed);
+  document.querySelectorAll(".nav-link").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.section === ui.section);
   });
+
+  document.querySelector("#profile-name").textContent = data.profile.owner;
+  document.querySelector("#profile-role").textContent = data.profile.role;
+  searchNode.value = ui.search;
+
+  const meta = sectionMeta[ui.section];
+  breadcrumbNode.textContent = meta.breadcrumb;
+  titleNode.textContent = meta.title;
+  descriptionNode.textContent = meta.description;
+  document.querySelector("#range-label").textContent = labelRange(ui.range);
+  actionsNode.innerHTML = `
+    <button class="button button--primary" data-action="${meta.action}">
+      <span>${meta.actionLabel}</span>
+    </button>
+  `;
+
+  const collapseText = document.querySelector(".sidebar-collapse__text");
+  if (collapseText) collapseText.textContent = ui.sidebarCollapsed ? "Expandir" : "Recolher";
 }
 
 function renderSection() {
   switch (ui.section) {
     case "dashboard":
       content.innerHTML = renderDashboard();
-      drawDashboardCharts();
+      break;
+    case "meu-dia":
+      content.innerHTML = renderMeuDia();
+      break;
+    case "timeline":
+      content.innerHTML = renderTimeline();
+      break;
+    case "favoritos":
+      content.innerHTML = renderFavoritos();
       break;
     case "operadores":
-      content.innerHTML = renderOperators();
+      content.innerHTML = renderOperadores();
+      break;
+    case "gerentes":
+      content.innerHTML = renderGerentes();
       break;
     case "redes":
-      content.innerHTML = renderNetworks();
+      content.innerHTML = renderRedes();
       break;
-    case "faturamento":
-      content.innerHTML = renderBilling();
-      drawBillingCharts();
+    case "plataformas":
+      content.innerHTML = renderPlataformas();
+      break;
+    case "metas":
+      content.innerHTML = renderMetas();
+      break;
+    case "financeiro":
+      content.innerHTML = renderFinanceiro();
       break;
     case "custos":
-      content.innerHTML = renderCosts();
+      content.innerHTML = renderCustos();
       break;
     case "pix":
       content.innerHTML = renderPix();
       break;
-    case "afiliados":
-      content.innerHTML = renderAffiliates();
+    case "remessas":
+      content.innerHTML = renderRemessas();
       break;
-    case "assinatura":
-      content.innerHTML = renderGovernance();
+    case "relatorios":
+      content.innerHTML = renderRelatorios();
       break;
     default:
-      content.innerHTML = renderEmptyState("Módulo ainda não disponível.");
+      content.innerHTML = `<div class="empty-state">Módulo em preparação.</div>`;
   }
 }
 
 function renderDashboard() {
-  const summary = getSummary();
-  const topOperator = getTopOperator();
-  const topNetwork = getTopNetwork();
-  const targetPct = Math.min(100, Math.round((summary.todayProfit / data.goals.daily) * 100));
+  const financial = getFinancialSummary();
+  const activeOps = data.operators.filter((item) => item.status !== "offline").length;
 
   return `
-    <section class="highlight-card">
-      <div class="stack-row">
-        <div>
-          <p class="card-eyebrow">Cockpit do dia</p>
-          <strong class="metric-value">${escapeHtml(data.profile.owner)}</strong>
-          <p class="section-copy">Ambiente proprietário para leitura tática, decisões rápidas e gestão local da base.</p>
-        </div>
-        <div class="stack-row">
-          ${statusPill(data.profile.status, "good")}
-          ${statusPill(summary.riskLabel, summary.riskTone)}
-          ${statusPill(`${summary.activeOperators} ativos`, "good")}
-        </div>
-      </div>
+    <section class="metrics-grid">
+      ${renderMetricCard({
+        icon: "banknote",
+        label: "Lucro total",
+        value: currency(financial.profit),
+        change: "↑ 18.4%",
+        tone: "good",
+        spark: data.history.profit,
+        sparkColor: "#29d467",
+      })}
+      ${renderMetricCard({
+        icon: "chart-up",
+        label: "Receita",
+        value: currency(financial.revenue),
+        change: "↑ 14.8%",
+        tone: "good",
+        spark: data.history.revenue,
+        sparkColor: "#2ea0ff",
+      })}
+      ${renderMetricCard({
+        icon: "percent",
+        label: "ROI",
+        value: `${financial.roi}%`,
+        change: "↑ 9.2%",
+        tone: "good",
+        spark: data.history.roi,
+        sparkColor: "#4d8dff",
+      })}
+      ${renderMetricCard({
+        icon: "users",
+        label: "Op. trabalhando",
+        value: String(activeOps),
+        change: "↑ 6.2%",
+        tone: "good",
+        spark: data.history.activeOperators,
+        sparkColor: "#29d467",
+      })}
     </section>
 
-    <section class="goal-panel">
-      <div class="goal-panel__icon">GS</div>
-      <div>
-        <p class="card-eyebrow">Meta diária</p>
-        <div class="stack-row">
-          <strong class="money-value">${formatBRL(summary.todayProfit)}</strong>
-          <span class="muted">de ${formatBRL(data.goals.daily)}</span>
-        </div>
-        <p class="section-copy">Faltam ${formatBRL(Math.max(0, data.goals.daily - summary.todayProfit))} para fechar o alvo de hoje.</p>
-        <div class="progress"><span style="width:${targetPct}%"></span></div>
-      </div>
-      <div>
-        <strong class="metric-value">${targetPct}%</strong>
-        <span class="muted">do objetivo</span>
-      </div>
-    </section>
-
-    <section class="quad-grid">
-      ${statCard("Lucro líquido do período", formatBRL(summary.netProfit), "money-value money-value--mint")}
-      ${statCard("Receita bruta", formatBRL(summary.revenueTotal), "money-value")}
-      ${statCard("Margem operacional", `${summary.margin}%`, "metric-value")}
-      ${statCard("Remessas concluídas", String(summary.completedRemessas), "metric-value")}
-    </section>
-
-    <section class="two-column">
+    <section class="split-grid">
       <article class="chart-card">
-        <div class="section-header">
+        <div class="section-head">
           <div>
-            <p class="card-eyebrow">Curva operacional</p>
-            <h2 class="section-title">Lucro, receita e custo da janela ativa</h2>
+            <h2>Curva de Performance</h2>
+            <p>Lucro, receita e custos consolidados</p>
           </div>
-          <div class="toolbar">
-            ${rangeButton("7d")}
-            ${rangeButton("30d")}
-            ${rangeButton("all")}
+          <div class="segmented">
+            ${rangeOption("7d")}
+            ${rangeOption("30d")}
+            ${rangeOption("90d")}
+            ${rangeOption("12m")}
           </div>
         </div>
-        <div class="small-grid" style="margin-top:18px;">
-          ${microStat("Melhor operador", topOperator.name)}
-          ${microStat("Melhor rede", topNetwork.name)}
-          ${microStat("Eficiência média", `${summary.avgEfficiency}%`)}
-        </div>
-        <canvas id="dashboard-profit-chart" width="860" height="260"></canvas>
+        <div class="canvas-wrap"><canvas id="dashboard-chart" width="980" height="340"></canvas></div>
       </article>
 
-      <article class="chart-card chart-card--small">
-        <div class="section-header">
+      <article class="chart-card">
+        <div class="section-head">
           <div>
-            <p class="card-eyebrow">Fluxo consolidado</p>
-            <h2 class="section-title">Funil da operação</h2>
+            <h2>Funil Operacional</h2>
+            <p>Fluxo dos operadores no ciclo</p>
           </div>
         </div>
         <div class="funnel-list">
-          ${funnelStep("Contas monitoradas", String(summary.totalAccounts))}
-          ${funnelStep("Operadores ativos", String(summary.activeOperators))}
-          ${funnelStep("Metas fechadas", String(summary.closedGoals))}
-          ${funnelStep("Remessas no período", String(summary.filteredRemessas.length))}
-          ${funnelStep("Lucro médio por conta", formatBRL(summary.avgPerAccount))}
+          ${funnelRow("Cadastrados", data.operators.length, 100)}
+          ${funnelRow("Ativos", activeOps, 82)}
+          ${funnelRow("Trabalhando", activeOps - 1, 64)}
+          ${funnelRow("Batendo meta", data.operators.filter((item) => item.goalPct >= 80).length, 34)}
+          ${funnelRow("Taxa de conversão", `${financial.conversion}%`, 25, "good")}
         </div>
       </article>
     </section>
 
-    <section class="banner-note">
-      Ritmo atual: ${formatBRL(summary.avgTicket)} por operação concluída e projeção mensal de ${formatBRL(summary.projectedMonth)}.
-    </section>
-
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
           <div>
-            <h2 class="section-title">Leitura executiva</h2>
-            <p class="section-copy">Síntese do que merece atenção imediata.</p>
+            <h3>Alertas prioritários</h3>
+            <p>Nada acumulando sem revisão</p>
           </div>
-          ${statusPill("Painel saudável", "good")}
+          <span class="timeline-item__time">Hoje</span>
         </div>
-        <div class="bullet-list">
-          ${summary.insights.map((item) => `<div class="bullet-item">${escapeHtml(item)}</div>`).join("")}
+        <div class="priority-grid">
+          ${data.priorityAlerts
+            .map(
+              (item) => `
+                <div class="mini-alert mini-alert--${item.tone}">
+                  <h4>${escapeHtml(item.title)}</h4>
+                  <p>${escapeHtml(item.body)}</p>
+                </div>
+              `
+            )
+            .join("")}
         </div>
       </article>
 
-      <article class="info-card info-card--mint">
-        <div class="section-header">
+      <article class="activity-card">
+        <div class="section-head">
           <div>
-            <h2 class="section-title">Spotlight do ciclo</h2>
-            <p class="section-copy">Onde está seu melhor resultado agora.</p>
+            <h3>Alertas & Atividades</h3>
+            <p>Tempo real</p>
           </div>
         </div>
-        <div class="record-list">
-          <div class="record-item">
-            <strong>${escapeHtml(topOperator.name)}</strong>
-            <span class="muted">${formatBRL(topOperator.profit)} • score ${topOperator.score} • ${topOperator.closedGoals} metas fechadas.</span>
-          </div>
-          <div class="record-item">
-            <strong>${escapeHtml(topNetwork.name)}</strong>
-            <span class="muted">${formatBRL(topNetwork.profit)} • risco ${escapeHtml(topNetwork.risk)} • ${topNetwork.approvalRate}% de aprovação.</span>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Atividade recente</h2>
-            <p class="section-copy">Últimos movimentos relevantes registrados localmente.</p>
-          </div>
-        </div>
-        <div class="timeline-list">
+        <div class="activity-list">
           ${data.activity
             .slice(0, 5)
             .map(
               (item) => `
-                <div class="timeline-item">
-                  <strong>${escapeHtml(item.title)}</strong>
-                  <span class="muted">${escapeHtml(item.time)} • ${escapeHtml(item.description)}</span>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
-
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Alertas estratégicos</h2>
-            <p class="section-copy">Leituras automáticas para priorização operacional.</p>
-          </div>
-        </div>
-        <div class="record-list">
-          ${data.alerts
-            .map(
-              (item) => `
-                <div class="record-item">
-                  <div class="list-row">
+                <div class="activity-item">
+                  <div>
                     <strong>${escapeHtml(item.title)}</strong>
-                    ${statusPill(item.level, item.tone)}
+                    <div class="activity-item__meta">${escapeHtml(item.description)}</div>
                   </div>
-                  <span class="muted">${escapeHtml(item.body)}</span>
+                  <span class="activity-item__time">${escapeHtml(item.time)}</span>
                 </div>
               `
             )
@@ -436,59 +518,75 @@ function renderDashboard() {
   `;
 }
 
-function renderOperators() {
-  return `
-    <section class="tab-strip">
-      ${tabButton("operators:ranking", "Ranking", ui.operatorsTab)}
-      ${tabButton("operators:equipe", "Equipe", ui.operatorsTab)}
-      ${tabButton("operators:folha", "Folha", ui.operatorsTab)}
-      ${tabButton("operators:config", "Políticas", ui.operatorsTab)}
-    </section>
-    ${
-      ui.operatorsTab === "ranking"
-        ? renderOperatorsRanking()
-        : ui.operatorsTab === "equipe"
-          ? renderOperatorsTeam()
-          : ui.operatorsTab === "folha"
-            ? renderOperatorsPayroll()
-            : renderOperatorsConfig()
-    }
-  `;
-}
-
-function renderOperatorsRanking() {
-  const summary = getOperatorSummary();
-  const ordered = data.operators.slice().sort((a, b) => b.profit - a.profit);
+function renderMeuDia() {
+  const doneTasks = data.tasks.filter((item) => item.done).length;
+  const progress = Math.round((doneTasks / Math.max(data.tasks.length, 1)) * 100);
+  const todayGoals = data.goals.filter((item) => item.scope !== "plataforma").slice(0, 3);
+  const lowOps = data.operators.filter((item) => item.goalPct < 60);
+  const financial = getFinancialSummary();
 
   return `
-    <section class="operator-grid">
-      ${statCard("Operadores cadastrados", String(summary.total), "metric-value")}
-      ${statCard("Ativos hoje", String(summary.active), "metric-value")}
-      ${statCard("Depositantes totais", String(summary.depositors), "metric-value")}
-      ${statCard("Score médio", `${summary.accuracy}%`, "metric-value")}
-      ${statCard("Lucro da equipe", formatBRL(summary.profit), "money-value money-value--mint")}
-    </section>
-
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
+    <section class="duo-grid">
+      <article class="task-card">
+        <div class="section-head">
           <div>
-            <h2 class="section-title">Ranking semanal</h2>
-            <p class="section-copy">Performance ordenada por lucro, consistência e disciplina operacional.</p>
+            <h2>Tarefas do dia</h2>
+            <p>${doneTasks} de ${data.tasks.length} concluídas</p>
           </div>
-          ${statusPill(`${summary.active} ativos`, "good")}
+          <div style="min-width:140px">
+            <div class="progress"><span style="width:${progress}%"></span></div>
+          </div>
         </div>
-        <div class="operator-list">
-          ${ordered
+        <div class="tasks-list">
+          ${data.tasks
             .map(
-              (item, index) => `
-                <div class="operator-item">
-                  <div class="list-row">
-                    <strong>#${index + 1} ${escapeHtml(item.name)}</strong>
-                    <span class="badge badge--good">${formatBRL(item.profit)}</span>
+              (task) => `
+                <button class="task-item ${task.done ? "is-done" : ""}" data-toggle-task="${task.id}">
+                  <span class="task-check"></span>
+                  <div style="flex:1;">
+                    <strong>${escapeHtml(task.title)}</strong>
                   </div>
-                  <span class="muted">${item.deposits} depositantes • ${item.closedGoals} metas • velocidade ${item.speed}</span>
-                  <div class="progress"><span style="width:${item.score}%"></span></div>
+                  <span class="timeline-item__time">${escapeHtml(task.when)}</span>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      </article>
+
+      <article class="task-card">
+        <div class="section-head">
+          <div>
+            <h2>Financeiro hoje</h2>
+            <p>Consolidado do dia</p>
+          </div>
+        </div>
+        <div class="activity-list">
+          ${todayMetric("Lucro", currency(financial.todayProfit), "+12.3%")}
+          ${todayMetric("Receita", currency(financial.todayRevenue), "+8.1%")}
+          ${todayMetric("Operadores ativos", String(data.operators.filter((item) => item.status !== "offline").length), "+4")}
+        </div>
+      </article>
+    </section>
+
+    <section class="duo-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <h3>Metas do dia</h3>
+            <p>Próximas do prazo</p>
+          </div>
+        </div>
+        <div class="activity-list">
+          ${todayGoals
+            .map(
+              (goal) => `
+                <div class="activity-item">
+                  <div style="flex:1;">
+                    <strong>${escapeHtml(goal.title)}</strong>
+                    <div class="progress" style="margin-top:12px;"><span style="width:${goal.progress}%"></span></div>
+                  </div>
+                  <span class="timeline-item__time">${goal.due}</span>
                 </div>
               `
             )
@@ -496,130 +594,146 @@ function renderOperatorsRanking() {
         </div>
       </article>
 
-      <article class="module-card">
-        <div class="section-header">
+      <article class="panel">
+        <div class="section-head">
           <div>
-            <h2 class="section-title">Radar da equipe</h2>
-            <p class="section-copy">Leituras resumidas para gestão rápida.</p>
+            <h3>Operadores em atenção</h3>
+            <p>Abaixo de 60% da meta individual</p>
           </div>
         </div>
-        <div class="bullet-list">
-          <div class="bullet-item">Melhor operador atual: ${escapeHtml(summary.topOperator)}</div>
-          <div class="bullet-item">Maior score de consistência: ${summary.topScore}/100</div>
-          <div class="bullet-item">Lucro médio por operador: ${formatBRL(summary.avgProfit)}</div>
-          <div class="bullet-item">Folha projetada da equipe: ${formatBRL(getPayrollTotal())}</div>
+        <div class="attention-list">
+          ${lowOps
+            .map(
+              (operator) => `
+                <div class="attention-item">
+                  <div class="person-cell">
+                    <span class="avatar">${initials(operator.name)}</span>
+                    <div class="person-meta">
+                      <strong>${escapeHtml(operator.name)}</strong>
+                      <small>${escapeHtml(operator.network)} • ${operator.goalPct}% da meta</small>
+                    </div>
+                  </div>
+                  <span class="money-red">${currency(operator.profit)}</span>
+                </div>
+              `
+            )
+            .join("")}
         </div>
       </article>
     </section>
   `;
 }
 
-function renderOperatorsTeam() {
+function renderTimeline() {
+  const items = data.timeline.filter((item) => {
+    if (ui.timelineFilter === "Todos") return matchesSearch([item.title, item.subtitle, item.author]);
+    return item.type === ui.timelineFilter.toLowerCase() && matchesSearch([item.title, item.subtitle, item.author]);
+  });
+
   return `
-    <section class="invite-card">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Convites ativos</h2>
-          <p class="section-copy">Links únicos para onboarding de novos operadores.</p>
-        </div>
-        <button class="primary-button" data-action="generate-invite">Gerar convite</button>
-      </div>
-      <div class="invite-list" style="margin-top:18px;">
-        ${data.invites
+    <section class="panel">
+      <div class="filter-row">
+        ${["Todos", "operador", "meta", "custo", "pix", "remessa", "edição", "exclusão"]
           .map(
-            (invite) => `
-              <div class="invite-item">
-                <div class="list-row">
-                  <strong>${escapeHtml(invite.code)}</strong>
-                  <div class="table-actions">
-                    ${statusPill(invite.status, invite.status === "Pendente" ? "alert" : "good")}
-                    <button class="mini-button" data-copy="${escapeHtml(invite.code)}">Copiar</button>
-                  </div>
+            (label) => `
+              <button
+                class="filter-chip ${normalizeTimelineFilter(label) === normalizeTimelineFilter(ui.timelineFilter) ? "is-active" : ""}"
+                data-timeline-filter="${label === "Todos" ? "Todos" : label}"
+              >
+                ${capitalize(label)}
+              </button>
+            `
+          )
+          .join("")}
+      </div>
+
+      <div class="timeline-feed">
+        ${items
+          .map(
+            (item) => `
+              <div class="timeline-item">
+                <div>
+                  <strong>${escapeHtml(item.title)}</strong>
+                  <div class="timeline-item__meta">${escapeHtml(item.subtitle)}</div>
+                  <div class="timeline-item__meta">por ${escapeHtml(item.author)}</div>
                 </div>
-                <span class="muted">Criado em ${formatDate(invite.date)} • expira em ${formatDate(invite.expiresAt)}</span>
+                <span class="timeline-item__time">${escapeHtml(item.time)}</span>
               </div>
             `
           )
           .join("")}
       </div>
     </section>
+  `;
+}
 
-    <section class="module-card">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Mapa da equipe</h2>
-          <p class="section-copy">Visão operacional com rede, score, ritmo e especialidade.</p>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Operador</th>
-              <th>Status</th>
-              <th>Rede</th>
-              <th>Especialidade</th>
-              <th>Score</th>
-              <th>Lucro</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.operators
-              .map(
-                (item) => `
-                  <tr>
-                    <td>${escapeHtml(item.name)}</td>
-                    <td>${statusBadge(item.status)}</td>
-                    <td>${escapeHtml(item.network)}</td>
-                    <td>${escapeHtml(item.specialty)}</td>
-                    <td>${item.score}</td>
-                    <td class="money-value--mint">${formatBRL(item.profit)}</td>
-                  </tr>
-                `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
+function renderFavoritos() {
+  const favorites = [
+    { title: "Resumo financeiro", body: "Acesso rápido ao caixa, margem, ROI e curva do período.", action: "financeiro" },
+    { title: "Operadores em risco", body: "Lista pronta dos operadores abaixo de 60% da meta.", action: "operadores" },
+    { title: "Redes mais lucrativas", body: "Veja imediatamente onde está o melhor retorno.", action: "redes" },
+  ];
+
+  return `
+    <section class="report-grid">
+      ${favorites
+        .map(
+          (item) => `
+            <article class="report-card">
+              <h3>${escapeHtml(item.title)}</h3>
+              <p>${escapeHtml(item.body)}</p>
+              <button class="button button--primary" data-section="${item.action}">Abrir módulo</button>
+            </article>
+          `
+        )
+        .join("")}
     </section>
   `;
 }
 
-function renderOperatorsPayroll() {
-  const rows = data.operators.map((item) => {
-    const fixed = item.deposits * data.settings.perDepositor;
-    const variable = item.profit * (data.settings.profitShare / 100);
-    return {
-      ...item,
-      fixed,
-      variable,
-      total: fixed + variable,
-    };
-  });
+function renderOperadores() {
+  const rows = data.operators.filter((item) =>
+    matchesSearch([item.name, item.id, item.network, item.platform, item.manager, item.city])
+  );
 
   return `
-    <section class="cost-grid">
-      ${statCard("Modelo fixo por depositante", formatBRL(data.settings.perDepositor), "money-value")}
-      ${statCard("Participação variável", `${data.settings.profitShare}%`, "metric-value")}
-      ${statCard("Folha prevista", formatBRL(rows.reduce((sum, item) => sum + item.total, 0)), "money-value money-value--mint")}
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "users", label: "Total", value: String(data.operators.length), change: "", tone: "good" })}
+      ${renderMetricCard({
+        icon: "users",
+        label: "Online agora",
+        value: String(data.operators.filter((item) => item.status === "online").length),
+        change: "↑ 4.1%",
+        tone: "good",
+      })}
+      ${renderMetricCard({ icon: "banknote", label: "Lucro somado", value: currency(sum(rows, "profit")), change: "↑ 12.8%", tone: "good" })}
+      ${renderMetricCard({ icon: "target", label: "Média de meta", value: `${average(rows, "goalPct").toFixed(1)}%`, change: "↑ 2.4%", tone: "good" })}
     </section>
 
-    <section class="module-card">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Simulação de pagamento</h2>
-          <p class="section-copy">Combinação entre valor por depositante e participação de resultado.</p>
+    <section class="table-card">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span data-icon="search"></span>
+          <input value="${escapeHtml(searchNode.value)}" disabled />
+        </div>
+        <div class="inline-actions">
+          <button class="button button--ghost" data-action="export-json">Exportar</button>
         </div>
       </div>
-      <div class="table-wrap">
+
+      <div class="table-shell">
         <table>
           <thead>
             <tr>
               <th>Operador</th>
-              <th>Depositantes</th>
-              <th>Fixo</th>
-              <th>Variável</th>
-              <th>Total projetado</th>
+              <th>Gerente</th>
+              <th>Status</th>
+              <th>Rede</th>
+              <th>Meta</th>
+              <th>Lucro</th>
+              <th>ROI</th>
+              <th>Último acesso</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -627,11 +741,34 @@ function renderOperatorsPayroll() {
               .map(
                 (item) => `
                   <tr>
-                    <td>${escapeHtml(item.name)}</td>
-                    <td>${item.deposits}</td>
-                    <td>${formatBRL(item.fixed)}</td>
-                    <td>${formatBRL(item.variable)}</td>
-                    <td class="money-value--mint">${formatBRL(item.total)}</td>
+                    <td>
+                      <div class="person-cell">
+                        <span class="avatar">${initials(item.name)}</span>
+                        <div class="person-meta">
+                          <strong>${escapeHtml(item.name)}</strong>
+                          <small>${escapeHtml(item.id)} • ${escapeHtml(item.city)}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>${escapeHtml(item.manager)}</td>
+                    <td>${statusBadge(item.status)}</td>
+                    <td>${escapeHtml(item.network)}</td>
+                    <td>
+                      <div class="progress ${item.goalPct >= 90 ? "progress--green" : ""}">
+                        <span style="width:${item.goalPct}%"></span>
+                      </div>
+                    </td>
+                    <td class="${item.profit >= 0 ? "money-green" : "money-red"}">${currency(item.profit)}</td>
+                    <td>${item.roi}%</td>
+                    <td>${escapeHtml(item.lastSeen)}</td>
+                    <td>
+                      <div class="inline-actions">
+                        ${rowAction("view")}
+                        ${rowAction("edit")}
+                        ${rowAction("pause")}
+                        ${rowAction("delete")}
+                      </div>
+                    </td>
                   </tr>
                 `
               )
@@ -643,280 +780,53 @@ function renderOperatorsPayroll() {
   `;
 }
 
-function renderOperatorsConfig() {
-  return `
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Modelo operacional</h2>
-            <p class="section-copy">Regras definidas hoje para condução da equipe.</p>
-          </div>
-        </div>
-        <div class="bullet-list">
-          <div class="bullet-item">Estrutura principal: ${escapeHtml(data.settings.operationModel)}</div>
-          <div class="bullet-item">Pagamento fixo: ${formatBRL(data.settings.perDepositor)} por depositante</div>
-          <div class="bullet-item">Participação no lucro: ${data.settings.profitShare}%</div>
-          <div class="bullet-item">Slots preferidos: ${data.settings.favoriteSlots.join(", ")}</div>
-        </div>
-      </article>
-
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Regras de disciplina</h2>
-            <p class="section-copy">Pontos observados pelo gestor no dia a dia.</p>
-          </div>
-        </div>
-        <div class="record-list">
-          ${data.operatorPolicies
-            .map(
-              (item) => `
-                <div class="record-item">
-                  <strong>${escapeHtml(item.title)}</strong>
-                  <span class="muted">${escapeHtml(item.description)}</span>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
-    </section>
-  `;
-}
-
-function renderNetworks() {
-  const totalProfit = data.networks.reduce((sum, item) => sum + item.profit, 0);
-  const avgScore = Math.round(data.networks.reduce((sum, item) => sum + item.score, 0) / data.networks.length);
-
-  return `
-    <section class="network-grid">
-      ${statCard("Redes monitoradas", String(data.networks.length), "metric-value")}
-      ${statCard("Score médio", `${avgScore}/100`, "metric-value")}
-      ${statCard("Lucro consolidado", formatBRL(totalProfit), "money-value money-value--mint")}
-    </section>
-
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Ranking de redes</h2>
-            <p class="section-copy">Comparativo por score, aprovação e resultado líquido.</p>
-          </div>
-        </div>
-        <div class="record-list">
-          ${data.networks
-            .slice()
-            .sort((a, b) => b.score - a.score)
-            .map(
-              (item, index) => `
-                <div class="score-card">
-                  <div class="list-row">
-                    <strong>#${index + 1} ${escapeHtml(item.name)}</strong>
-                    <span class="badge badge--good">${formatBRL(item.profit)}</span>
-                  </div>
-                  <span class="muted">${item.approvalRate}% de aprovação • risco ${escapeHtml(item.risk)} • ${item.closedGoals} metas</span>
-                  <div class="progress"><span style="width:${item.score}%"></span></div>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
-
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Recomendações</h2>
-            <p class="section-copy">Leituras práticas para a próxima decisão operacional.</p>
-          </div>
-        </div>
-        <div class="bullet-list">
-          ${data.networks
-            .map(
-              (item) => `
-                <div class="bullet-item">
-                  <strong>${escapeHtml(item.name)}:</strong> ${escapeHtml(item.recommendation)}
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
-    </section>
-
-    <section class="network-grid">
-      ${data.networks
-        .map(
-          (item) => `
-            <article class="network-card">
-              <p class="card-eyebrow">${escapeHtml(item.name)}</p>
-              <strong class="money-value">${formatBRL(item.profit)}</strong>
-              <span class="muted">${item.accounts} contas • ${item.deposits} depósitos • ${item.remessas} remessas</span>
-              ${statusPill(`${item.approvalRate}% aprovação`, item.approvalRate >= 82 ? "good" : item.approvalRate >= 74 ? "alert" : "danger")}
-            </article>
-          `
-        )
-        .join("")}
-    </section>
-  `;
-}
-
-function renderBilling() {
-  return `
-    <section class="tab-strip">
-      ${tabButton("billing:overview", "Visão geral", ui.billingTab)}
-      ${tabButton("billing:evolution", "Evolução", ui.billingTab)}
-      ${tabButton("billing:history", "Histórico", ui.billingTab)}
-    </section>
-
-    <section class="filters-row">
-      ${rangeButton("hoje")}
-      ${rangeButton("7d")}
-      ${rangeButton("30d")}
-      ${rangeButton("all")}
-    </section>
-
-    ${
-      ui.billingTab === "overview"
-        ? renderBillingOverview()
-        : ui.billingTab === "evolution"
-          ? renderBillingEvolution()
-          : renderBillingHistory()
-    }
-  `;
-}
-
-function renderBillingOverview() {
-  const summary = getSummary();
-
+function renderGerentes() {
+  const rows = data.managers.filter((item) => matchesSearch([item.name, item.email, item.role]));
   return `
     <section class="metrics-grid">
-      <article class="chart-card">
-        <div class="section-header">
-          <div>
-            <p class="card-eyebrow">Receita consolidada</p>
-            <h2 class="section-title">Resultado financeiro da janela ativa</h2>
-          </div>
-          ${statusPill(`${summary.margin}% margem`, summary.margin >= 46 ? "good" : "alert")}
-        </div>
-        <strong class="money-value money-value--mint">${formatBRL(summary.netProfit)}</strong>
-        <p class="section-copy">Receita líquida após dedução dos custos contabilizados no período.</p>
-        <div class="small-grid" style="margin-top:18px;">
-          ${microStat("Receita bruta", formatBRL(summary.revenueTotal))}
-          ${microStat("Custos", formatBRL(summary.costTotal))}
-          ${microStat("Ticket médio", formatBRL(summary.avgTicket))}
-        </div>
-        <canvas id="billing-overview-chart" width="860" height="240"></canvas>
-      </article>
-
-      <div class="list-grid">
-        ${infoMetric("Lucro bruto", formatBRL(summary.profitTotal))}
-        ${infoMetric("Total depositado", formatBRL(summary.totalDeposited))}
-        ${infoMetric("Total sacado", formatBRL(summary.totalWithdrawn))}
-        ${infoMetric("Taxa de aprovação", `${summary.approvalRate}%`)}
-      </div>
+      ${renderMetricCard({ icon: "user-cog", label: "Total", value: String(data.managers.length), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "user-cog", label: "Ativos", value: String(rows.filter((item) => item.status === "ativo").length), change: "↑ 0.0%", tone: "good" })}
+      ${renderMetricCard({ icon: "users", label: "Equipes", value: String(sum(rows, "team")), change: "↑ 6.2%", tone: "good" })}
+      ${renderMetricCard({ icon: "banknote", label: "Lucro consolidado", value: currency(sum(rows, "profit")), change: "↑ 11.8%", tone: "good" })}
     </section>
 
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Inteligência financeira</h2>
-            <p class="section-copy">Leitura de tendência com base no comportamento do período.</p>
-          </div>
+    <section class="table-card">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span data-icon="search"></span>
+          <input value="${escapeHtml(searchNode.value)}" disabled />
         </div>
-        <div class="bullet-list">
-          <div class="bullet-item">Tendência atual: ${escapeHtml(summary.trend)}</div>
-          <div class="bullet-item">Lucro médio por meta: ${formatBRL(summary.avgGoalProfit)}</div>
-          <div class="bullet-item">Previsão para atingir a meta global: ~${summary.forecastDays} dias</div>
-        </div>
-      </article>
-
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Meta mensal</h2>
-            <p class="section-copy">Objetivo atual configurado localmente.</p>
-          </div>
-          <button class="mini-button" data-action="raise-goal">+ R$ 5 mil</button>
-        </div>
-        <strong class="money-value">${Math.round((summary.netProfit / data.goals.monthly) * 100)}%</strong>
-        <div class="progress" style="margin:18px 0 18px;">
-          <span style="width:${Math.min(100, Math.round((summary.netProfit / data.goals.monthly) * 100))}%"></span>
-        </div>
-        <div class="triple-grid">
-          ${statCard("Atingido", formatBRL(summary.netProfit), "money-value money-value--mint")}
-          ${statCard("Falta", formatBRL(Math.max(0, data.goals.monthly - summary.netProfit)), "money-value")}
-          ${statCard("Objetivo", formatBRL(data.goals.monthly), "money-value")}
-        </div>
-      </article>
-    </section>
-  `;
-}
-
-function renderBillingEvolution() {
-  return `
-    <section class="chart-card">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Evolução do faturamento</h2>
-          <p class="section-copy">Linha temporal de receita, lucro e custo no intervalo selecionado.</p>
-        </div>
+        <button class="button button--ghost" data-action="export-json">Exportar</button>
       </div>
-      <canvas id="billing-evolution-chart" width="1200" height="280"></canvas>
-    </section>
-
-    <section class="chart-card chart-card--small">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Comparativo lucro x custo</h2>
-          <p class="section-copy">Distribuição visual da intensidade financeira por dia.</p>
-        </div>
-      </div>
-      <canvas id="billing-compare-chart" width="1200" height="220"></canvas>
-    </section>
-  `;
-}
-
-function renderBillingHistory() {
-  const remessas = getFilteredRemessas(ui.billingRange);
-
-  return `
-    <section class="module-card">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Histórico de operações</h2>
-          <p class="section-copy">Tabela filtrada pelo intervalo ativo.</p>
-        </div>
-      </div>
-      <div class="table-wrap">
+      <div class="table-shell">
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Operador</th>
-              <th>Valor</th>
-              <th>Origem</th>
-              <th>Destino</th>
-              <th>Data</th>
+              <th>Gerente</th>
+              <th>Email</th>
+              <th>Equipe</th>
+              <th>Lucro</th>
               <th>Status</th>
-              <th>Ação</th>
             </tr>
           </thead>
           <tbody>
-            ${remessas
+            ${rows
               .map(
                 (item) => `
                   <tr>
-                    <td>${escapeHtml(item.id)}</td>
-                    <td>${escapeHtml(item.operator)}</td>
-                    <td>${formatBRL(item.value)}</td>
-                    <td>${escapeHtml(item.source)}</td>
-                    <td>${escapeHtml(item.target)}</td>
-                    <td>${formatDate(item.date)}</td>
+                    <td>
+                      <div class="person-cell">
+                        <span class="avatar">${initials(item.name)}</span>
+                        <div class="person-meta">
+                          <strong>${escapeHtml(item.name)}</strong>
+                          <small>${escapeHtml(item.id)} • ${escapeHtml(item.role)}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>${escapeHtml(item.email)}</td>
+                    <td>${item.team}</td>
+                    <td class="money-green">${currency(item.profit)}</td>
                     <td>${statusBadge(item.status)}</td>
-                    <td><button class="mini-button" data-remove-remessa="${item.id}">Excluir</button></td>
                   </tr>
                 `
               )
@@ -928,114 +838,243 @@ function renderBillingHistory() {
   `;
 }
 
-function renderCosts() {
-  const summary = getCostSummary();
+function renderRedes() {
+  const rows = data.networks.filter((item) => matchesSearch([item.name, item.code, item.status]));
 
   return `
-    <section class="cost-grid">
-      ${statCard("Custo do período", formatBRL(summary.periodCost), "money-value money-value--rose")}
-      ${statCard("Lucro após custos", formatBRL(summary.netAfterCosts), summary.netAfterCosts >= 0 ? "money-value money-value--mint" : "money-value money-value--rose")}
-      ${statCard("Média por lançamento", formatBRL(summary.avgCost), "money-value")}
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "network", label: "Total", value: String(data.networks.length), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "network", label: "Ativas", value: String(rows.filter((item) => item.status === "ativa").length), change: "↑ 8.3%", tone: "good" })}
+      ${renderMetricCard({ icon: "users", label: "Operadores", value: String(sum(rows, "operators")), change: "↑ 4.6%", tone: "good" })}
+      ${renderMetricCard({ icon: "banknote", label: "Lucro somado", value: compactCurrency(sum(rows, "profit")), change: "↑ 14.2%", tone: "good" })}
     </section>
 
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Distribuição por categoria</h2>
-            <p class="section-copy">Entenda rapidamente onde o caixa está sendo consumido.</p>
-          </div>
-          <button class="ghost-button" data-action="open-cost">Adicionar custo</button>
-        </div>
-        <div class="bar-stack">
-          ${summary.categories
-            .map(
-              (item) => `
-                <div class="bar-line">
-                  <div class="bar-line__head">
-                    <span>${escapeHtml(item.label)}</span>
-                    <strong>${formatBRL(item.value)}</strong>
-                  </div>
-                  <div class="bar-line__track">
-                    <div class="bar-line__fill" style="width:${item.percent}%"></div>
-                  </div>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
+    <section class="network-grid">
+      ${rows.map(renderNetworkCard).join("")}
+    </section>
+  `;
+}
 
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Leitura de caixa</h2>
-            <p class="section-copy">Interpretação rápida do impacto financeiro do custo atual.</p>
-          </div>
-        </div>
-        <div class="bullet-list">
-          <div class="bullet-item">Maior categoria: ${escapeHtml(summary.topCategory.label)} com ${formatBRL(summary.topCategory.value)}</div>
-          <div class="bullet-item">Custo de hoje: ${formatBRL(summary.today)}</div>
-          <div class="bullet-item">Peso dos custos sobre a receita: ${summary.weight}%</div>
-        </div>
-      </article>
+function renderPlataformas() {
+  const rows = data.platforms.filter((item) => matchesSearch([item.name, item.domain, item.network, item.category]));
+
+  return `
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "layers", label: "Total", value: String(data.platforms.length), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "activity", label: "Ativas", value: String(rows.filter((item) => item.status === "ativa").length), change: "↑ 3.1%", tone: "good" })}
+      ${renderMetricCard({ icon: "users", label: "Operadores", value: String(sum(rows, "operators")), change: "↑ 5.2%", tone: "good" })}
+      ${renderMetricCard({ icon: "banknote", label: "Lucro", value: compactCurrency(sum(rows, "profit")), change: "↑ 12.1%", tone: "good" })}
     </section>
 
-    <section class="module-card">
-      <div class="section-header">
+    <section class="table-card">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span data-icon="search"></span>
+          <input value="${escapeHtml(searchNode.value)}" disabled />
+        </div>
+        <button class="button button--ghost" data-action="export-json">Exportar</button>
+      </div>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Plataforma</th>
+              <th>Rede</th>
+              <th>Categoria</th>
+              <th>Operadores</th>
+              <th>Lucro</th>
+              <th>Meta</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows
+              .map(
+                (item) => `
+                  <tr>
+                    <td>
+                      <div class="person-cell">
+                        <span class="avatar">${item.name.charAt(0)}</span>
+                        <div class="person-meta">
+                          <strong>${escapeHtml(item.name)}</strong>
+                          <small>${escapeHtml(item.domain)}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>${escapeHtml(item.network)}</td>
+                    <td>${escapeHtml(item.category)}</td>
+                    <td>${item.operators}</td>
+                    <td class="money-green">${currency(item.profit)}</td>
+                    <td>
+                      <div class="progress ${item.goalPct >= 90 ? "progress--green" : ""}">
+                        <span style="width:${item.goalPct}%"></span>
+                      </div>
+                    </td>
+                    <td>${statusBadge(item.status)}</td>
+                  </tr>
+                `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function renderMetas() {
+  const goals = data.goals.filter((item) => matchesSearch([item.title, item.owner, item.scope]));
+  const globalGoals = goals.filter((item) => item.scope === "global");
+  const networkGoals = goals.filter((item) => item.scope === "rede");
+  const platformGoals = goals.filter((item) => item.scope === "plataforma");
+
+  return `
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "target", label: "Total", value: String(data.goalsSummary.total), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "check-circle", label: "Concluídas", value: String(data.goalsSummary.closed), change: "↑ 25.0%", tone: "good" })}
+      ${renderMetricCard({ icon: "clock", label: "Em progresso", value: String(data.goalsSummary.inProgress), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "chart-up", label: "Progresso médio", value: `${data.goalsSummary.average}%`, change: "↑ 4.8%", tone: "good" })}
+    </section>
+
+    <section class="goal-grid">
+      ${globalGoals.map(renderGoalCard).join("")}
+    </section>
+    <section class="goal-grid">
+      ${networkGoals.map(renderGoalCard).join("")}
+    </section>
+    <section class="goal-grid">
+      ${platformGoals.map(renderGoalCard).join("")}
+    </section>
+  `;
+}
+
+function renderFinanceiro() {
+  const financial = getFinancialSummary();
+  return `
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "banknote", label: "Receita", value: currency(financial.revenue), change: "↑ 14.8%", tone: "good", spark: data.history.revenue, sparkColor: "#2ea0ff" })}
+      ${renderMetricCard({ icon: "receipt", label: "Custos", value: currency(financial.costs), change: "↘ 5.4%", tone: "danger", spark: data.history.costs, sparkColor: "#ef4444" })}
+      ${renderMetricCard({ icon: "chart-up", label: "Lucro", value: currency(financial.profit), change: "↑ 18.4%", tone: "good", spark: data.history.profit, sparkColor: "#29d467" })}
+      ${renderMetricCard({ icon: "percent", label: "Margem", value: `${financial.margin}%`, change: "↑ 2.1%", tone: "good" })}
+    </section>
+
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "percent", label: "ROI", value: `${financial.roi}%`, change: "↑ 9.2%", tone: "good" })}
+      ${renderMetricCard({ icon: "wallet", label: "Saldo", value: currency(financial.balance), change: "↑ 6.4%", tone: "good" })}
+      ${renderMetricCard({ icon: "shield", label: "Reservas", value: currency(financial.reserve), change: "↑ 1.2%", tone: "good" })}
+      ${renderMetricCard({ icon: "chart-up", label: "Fluxo caixa", value: currency(financial.cashFlow), change: "↑ 8.9%", tone: "good" })}
+    </section>
+
+    <section class="chart-card">
+      <div class="section-head">
         <div>
-          <h2 class="section-title">Histórico de custos</h2>
-          <p class="section-copy">Lançamentos locais com remoção individual e observações salvas.</p>
+          <h2>Curva de Performance</h2>
+          <p>Lucro, receita e custos consolidados</p>
+        </div>
+        <div class="segmented">
+          ${rangeOption("7d")}
+          ${rangeOption("30d")}
+          ${rangeOption("90d")}
+          ${rangeOption("12m")}
         </div>
       </div>
-      <div class="cost-list">
-        ${data.costs
-          .slice()
-          .sort((a, b) => b.date.localeCompare(a.date))
-          .map(
-            (item) => `
-              <div class="cost-item">
-                <div class="list-row">
-                  <strong>${escapeHtml(item.type)}</strong>
-                  <div class="table-actions">
-                    <span class="badge badge--danger">${formatBRL(item.value)}</span>
-                    <button class="mini-button" data-remove-cost="${item.id}">Excluir</button>
-                  </div>
-                </div>
-                <span class="muted">${formatDate(item.date)} • ${escapeHtml(item.owner)} • ${escapeHtml(item.note)}</span>
-              </div>
-            `
-          )
-          .join("")}
+      <div class="canvas-wrap"><canvas id="finance-chart" width="980" height="340"></canvas></div>
+    </section>
+  `;
+}
+
+function renderCustos() {
+  const rows = data.costs.filter((item) => matchesSearch([item.category, item.supplier, item.description, item.method]));
+  const total = sum(rows, "value");
+  const paid = sum(rows.filter((item) => item.status === "pago"), "value");
+  const pending = rows.filter((item) => item.status === "pendente").length;
+  const overdue = rows.filter((item) => item.status === "vencido").length;
+
+  return `
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "receipt", label: "Total", value: currency(total), change: "↘ 5.4%", tone: "danger" })}
+      ${renderMetricCard({ icon: "check-circle", label: "Pagos", value: currency(paid), change: "↑ 12.4%", tone: "good" })}
+      ${renderMetricCard({ icon: "banknote", label: "Pendentes", value: String(pending), change: "", tone: "alert" })}
+      ${renderMetricCard({ icon: "alert-circle", label: "Vencidos", value: String(overdue), change: "", tone: "danger" })}
+    </section>
+
+    <section class="table-card">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span data-icon="search"></span>
+          <input value="${escapeHtml(searchNode.value)}" disabled />
+        </div>
+        <button class="button button--ghost" data-action="export-json">Exportar</button>
+      </div>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Fornecedor</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Data</th>
+              <th>Forma</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows
+              .map(
+                (item) => `
+                  <tr>
+                    <td><strong>${escapeHtml(item.category)}</strong></td>
+                    <td>${escapeHtml(item.supplier)}</td>
+                    <td>${escapeHtml(item.description)}</td>
+                    <td>${currency(item.value)}</td>
+                    <td>${escapeHtml(item.date)}</td>
+                    <td>${escapeHtml(item.method)}</td>
+                    <td>${statusBadge(item.status)}</td>
+                  </tr>
+                `
+              )
+              .join("")}
+          </tbody>
+        </table>
       </div>
     </section>
   `;
 }
 
 function renderPix() {
+  const rows = data.pix.filter((item) => matchesSearch([item.alias, item.bank, item.owner, item.key]));
   return `
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "wallet", label: "Chaves", value: String(data.pix.length), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "repeat", label: "Em uso", value: String(rows.filter((item) => item.usage === "alto giro").length), change: "↑ 3.7%", tone: "good" })}
+      ${renderMetricCard({ icon: "shield", label: "Ativas", value: String(rows.filter((item) => item.status === "ativa").length), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "alert-circle", label: "Em revisão", value: String(rows.filter((item) => item.status === "revisão").length), change: "", tone: "alert" })}
+    </section>
+
+    <section class="duo-grid">
+      <article class="table-card">
+        <div class="section-head">
           <div>
-            <h2 class="section-title">Cofre de chaves</h2>
-            <p class="section-copy">Gestão local das chaves PIX vinculadas à operação.</p>
+            <h3>Cofre de chaves</h3>
+            <p>Distribuição por banco e finalidade</p>
           </div>
         </div>
-        <div class="pix-list">
-          ${data.pixKeys
+        <div class="timeline-feed">
+          ${rows
             .map(
               (item) => `
-                <div class="pix-item">
-                  <div class="list-row">
+                <div class="timeline-item">
+                  <div>
                     <strong>${escapeHtml(item.alias)}</strong>
-                    <div class="table-actions">
-                      ${statusPill(item.status, item.status === "Ativa" ? "good" : "alert")}
-                      <button class="mini-button" data-copy="${escapeHtml(item.key)}">Copiar</button>
-                      <button class="mini-button" data-toggle-pix="${item.id}">Alternar</button>
-                    </div>
+                    <div class="timeline-item__meta">${escapeHtml(item.bank)} • ${escapeHtml(item.key)}</div>
+                    <div class="timeline-item__meta">${escapeHtml(item.owner)} • ${escapeHtml(item.usage)}</div>
                   </div>
-                  <span class="muted">${escapeHtml(item.bank)} • uso ${item.usage} • ${escapeHtml(item.owner)}</span>
+                  <div class="inline-actions">
+                    ${statusBadge(item.status)}
+                    <button class="button button--ghost" data-copy="${escapeHtml(item.key)}">Copiar</button>
+                    <button class="button button--ghost" data-toggle-pix="${item.id}">Alternar</button>
+                  </div>
                 </div>
               `
             )
@@ -1043,66 +1082,71 @@ function renderPix() {
         </div>
       </article>
 
-      <article class="module-card">
-        <div class="section-header">
+      <article class="panel">
+        <div class="section-head">
           <div>
-            <h2 class="section-title">Boas práticas</h2>
-            <p class="section-copy">Checklist interno de segurança financeira.</p>
+            <h3>Boas práticas</h3>
+            <p>Governança interna das chaves</p>
           </div>
         </div>
-        <div class="bullet-list">
-          ${data.pixPolicies.map((item) => `<div class="bullet-item">${escapeHtml(item)}</div>`).join("")}
+        <div class="activity-list">
+          ${data.pixPolicies.map((item) => `<div class="activity-item__meta">${escapeHtml(item)}</div>`).join("")}
         </div>
       </article>
     </section>
   `;
 }
 
-function renderAffiliates() {
+function renderRemessas() {
+  const rows = data.remessas.filter((item) =>
+    matchesSearch([item.id, item.operator, item.network, item.platform, item.status, item.source, item.target])
+  );
+
   return `
-    <section class="network-grid">
-      ${data.affiliates
-        .map(
-          (item) => `
-            <article class="partner-item">
-              <p class="card-eyebrow">${escapeHtml(item.channel)}</p>
-              <strong class="section-title">${escapeHtml(item.name)}</strong>
-              <span class="muted">${escapeHtml(item.focus)}</span>
-              <span class="badge badge--good">${item.share}% de participação</span>
-            </article>
-          `
-        )
-        .join("")}
+    <section class="metrics-grid">
+      ${renderMetricCard({ icon: "repeat", label: "Total", value: String(rows.length), change: "", tone: "good" })}
+      ${renderMetricCard({ icon: "check-circle", label: "Concluídas", value: String(rows.filter((item) => item.status === "concluida").length), change: "↑ 11.2%", tone: "good" })}
+      ${renderMetricCard({ icon: "clock", label: "Em trabalho", value: String(rows.filter((item) => item.status === "processando").length), change: "", tone: "alert" })}
+      ${renderMetricCard({ icon: "banknote", label: "Volume", value: compactCurrency(sum(rows, "value")), change: "↑ 7.6%", tone: "good" })}
     </section>
 
-    <section class="module-card">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Relacionamento e repasse</h2>
-          <p class="section-copy">Base resumida dos parceiros estratégicos da operação.</p>
+    <section class="table-card">
+      <div class="table-toolbar">
+        <div class="table-search">
+          <span data-icon="search"></span>
+          <input value="${escapeHtml(searchNode.value)}" disabled />
         </div>
+        <button class="button button--ghost" data-action="export-json">Exportar</button>
       </div>
-      <div class="table-wrap">
+      <div class="table-shell">
         <table>
           <thead>
             <tr>
-              <th>Afiliado</th>
-              <th>Canal</th>
-              <th>Participação</th>
-              <th>Origem estimada</th>
+              <th>ID</th>
+              <th>Operador</th>
+              <th>Rede</th>
+              <th>Plataforma</th>
+              <th>Valor</th>
+              <th>ROI</th>
               <th>Status</th>
+              <th>Origem</th>
+              <th>Destino</th>
             </tr>
           </thead>
           <tbody>
-            ${data.affiliates
+            ${rows
               .map(
                 (item) => `
                   <tr>
-                    <td>${escapeHtml(item.name)}</td>
-                    <td>${escapeHtml(item.channel)}</td>
-                    <td>${item.share}%</td>
-                    <td>${escapeHtml(item.focus)}</td>
-                    <td>${statusPill(item.status, item.status === "Ativo" ? "good" : "alert")}</td>
+                    <td><strong>${escapeHtml(item.id)}</strong></td>
+                    <td>${escapeHtml(item.operator)}</td>
+                    <td>${escapeHtml(item.network)}</td>
+                    <td>${escapeHtml(item.platform)}</td>
+                    <td class="money-green">${currency(item.value)}</td>
+                    <td>${item.roi}%</td>
+                    <td>${statusBadge(item.status)}</td>
+                    <td>${escapeHtml(item.source)}</td>
+                    <td>${escapeHtml(item.target)}</td>
                   </tr>
                 `
               )
@@ -1114,309 +1158,379 @@ function renderAffiliates() {
   `;
 }
 
-function renderGovernance() {
+function renderRelatorios() {
   return `
-    <section class="dual-grid">
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Governança local</h2>
-            <p class="section-copy">Camada de segurança e manutenção do painel.</p>
-          </div>
-          <button class="mini-button" data-action="toggle-maintenance">
-            ${data.governance.maintenance ? "Desativar manutenção" : "Ativar manutenção"}
-          </button>
-        </div>
-        <div class="bullet-list">
-          <div class="bullet-item">Modo manutenção: ${data.governance.maintenance ? "Ativo" : "Desativado"}</div>
-          <div class="bullet-item">Último backup marcado: ${escapeHtml(data.governance.lastBackup)}</div>
-          <div class="bullet-item">Versão da base: ${escapeHtml(data.version)}</div>
-          <div class="bullet-item">Destino de hospedagem: GitHub Pages</div>
-        </div>
-      </article>
-
-      <article class="module-card">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Integridade da base</h2>
-            <p class="section-copy">Ações locais para proteção do projeto.</p>
-          </div>
-          <button class="primary-button" data-action="run-backup">Marcar backup</button>
-        </div>
-        <div class="record-list">
-          ${data.governance.checks
-            .map(
-              (item) => `
-                <div class="record-item">
-                  <div class="list-row">
-                    <strong>${escapeHtml(item.title)}</strong>
-                    ${statusPill(item.status, item.tone)}
-                  </div>
-                  <span class="muted">${escapeHtml(item.body)}</span>
-                </div>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
+    <section class="report-grid">
+      ${data.reports
+        .map(
+          (item) => `
+            <article class="report-card">
+              <h3>${escapeHtml(item.title)}</h3>
+              <p>${escapeHtml(item.body)}</p>
+              <button class="button button--primary" data-action="export-json">Exportar base</button>
+            </article>
+          `
+        )
+        .join("")}
     </section>
   `;
 }
 
-function statCard(label, value, className) {
+function renderMetricCard({ icon, label, value, change, tone, spark = [], sparkColor = "#4d8dff" }) {
   return `
-    <article class="glass-card stat-card">
-      <p class="card-eyebrow">${label}</p>
-      <strong class="${className}">${value}</strong>
+    <article class="metric-card">
+      <div class="metric-card__head">
+        <div class="metric-card__icon">${iconMarkup(icon)}</div>
+        ${change ? `<span class="metric-card__change ${tone === "danger" ? "money-red" : "money-green"}">${change}</span>` : `<span></span>`}
+      </div>
+      <span class="metric-card__label">${label}</span>
+      <strong class="metric-card__value">${value}</strong>
+      ${spark.length ? `<div class="metric-card__spark">${sparkline(spark, sparkColor)}</div>` : ""}
     </article>
   `;
 }
 
-function microStat(label, value) {
+function renderNetworkCard(item) {
   return `
-    <div>
-      <span class="muted" style="display:block;margin-bottom:6px;">${label}</span>
-      <strong>${value}</strong>
-    </div>
-  `;
-}
-
-function infoMetric(label, value) {
-  return `
-    <article class="info-card">
-      <span class="muted" style="display:block;margin-bottom:8px;">${label}</span>
-      <strong class="money-value">${value}</strong>
+    <article class="network-card">
+      <div class="network-card__top">
+        <div class="person-cell">
+          <div class="network-mark" style="background:${item.color}">${item.mark}</div>
+          <div class="person-meta">
+            <strong class="network-card__title">${escapeHtml(item.name)}</strong>
+            <small>${escapeHtml(item.code)}</small>
+          </div>
+        </div>
+        ${statusBadge(item.status)}
+      </div>
+      <div class="network-card__meta">
+        <div>
+          <span>Lucro</span>
+          <strong>${compactCurrency(item.profit)}</strong>
+        </div>
+        <div>
+          <span>ROI</span>
+          <strong>${item.roi}%</strong>
+        </div>
+        <div>
+          <span>OPS</span>
+          <strong>${item.operators}</strong>
+        </div>
+      </div>
+      <div>
+        <div class="status-row">
+          <span class="subtle">Meta</span>
+          <strong>${item.goalPct}%</strong>
+        </div>
+        <div class="progress ${item.goalPct >= 90 ? "progress--green" : ""}" style="margin-top:8px;">
+          <span style="width:${item.goalPct}%"></span>
+        </div>
+      </div>
+      <div class="network-card__footer">Performance ${item.performance}%</div>
     </article>
   `;
 }
 
-function funnelStep(label, value) {
+function renderGoalCard(item) {
   return `
-    <div class="funnel-step">
-      <span class="muted">${label}</span>
-      <strong class="money-value">${value}</strong>
+    <article class="goal-card">
+      <div class="goal-card__top">
+        <div>
+          <strong class="goal-card__title">${escapeHtml(item.title)}</strong>
+          <div class="timeline-item__meta">Responsável • ${escapeHtml(item.owner)}</div>
+        </div>
+        ${item.status === "concluída" ? statusBadge("concluída") : ""}
+      </div>
+      <div class="goal-card__value">
+        <strong>${formatGoalValue(item)}</strong>
+        <span class="subtle">/ ${formatGoalTarget(item)}</span>
+      </div>
+      <div class="progress ${item.progress >= 90 ? "progress--green" : ""}">
+        <span style="width:${item.progress}%"></span>
+      </div>
+      <div class="goal-card__footer">Prazo • ${escapeHtml(item.due)} • ${item.progress}%</div>
+    </article>
+  `;
+}
+
+function todayMetric(label, value, delta) {
+  return `
+    <div class="activity-item">
+      <div>
+        <div class="timeline-item__meta">${label}</div>
+        <strong>${value}</strong>
+      </div>
+      <span class="money-green">${delta}</span>
     </div>
   `;
 }
 
-function tabButton(key, label, active) {
-  const value = key.split(":")[1];
-  return `<button class="tab-button ${value === active ? "is-active" : ""}" data-tab="${key}">${label}</button>`;
+function funnelRow(label, value, pct, tone = "blue") {
+  return `
+    <div class="funnel-item">
+      <div class="status-row">
+        <span class="subtle">${label}</span>
+        <strong class="${tone === "good" ? "money-green" : ""}">${value}</strong>
+      </div>
+      <div class="progress ${tone === "good" ? "progress--green" : ""}">
+        <span style="width:${pct}%"></span>
+      </div>
+    </div>
+  `;
 }
 
-function rangeButton(value) {
-  return `<button class="filter-chip ${ui.billingRange === value ? "is-active" : ""}" data-range="${value}">${labelRange(value)}</button>`;
+function rowAction(name) {
+  const labels = {
+    view: "Ver",
+    edit: "Editar",
+    pause: "Pausar",
+    delete: "Excluir",
+  };
+  return `<button class="button button--ghost" data-row-action="${name}">${labels[name]}</button>`;
 }
 
-function statusPill(label, tone) {
-  return `<span class="status-pill status-pill--${tone}">${label}</span>`;
+function rangeOption(value) {
+  return `<button class="${ui.range === value ? "is-active" : ""}" data-range="${value}">${labelRange(value)}</button>`;
 }
 
 function statusBadge(status) {
-  if (status === "concluida") return `<span class="badge badge--good">Concluída</span>`;
-  if (status === "processando") return `<span class="badge badge--alert">Processando</span>`;
-  return `<span class="badge badge--danger">Pendente</span>`;
+  const normalized = normalizeStatus(status);
+  if (normalized === "online" || normalized === "ativo" || normalized === "ativa" || normalized === "concluída" || normalized === "concluida" || normalized === "pago") {
+    return `<span class="status-badge status-badge--good">${status}</span>`;
+  }
+  if (normalized === "trabalhando" || normalized === "processando" || normalized === "pendente" || normalized === "revisão" || normalized === "revisao" || normalized === "pausada" || normalized === "pausa") {
+    return `<span class="status-badge status-badge--alert">${status}</span>`;
+  }
+  return `<span class="status-badge status-badge--danger">${status}</span>`;
 }
 
-function renderEmptyState(message) {
+function getFinancialSummary() {
+  const revenue = sum(data.history.revenue);
+  const costs = sum(data.history.costs);
+  const profit = revenue - costs;
+  const balance = revenue - costs * 0.6;
+  const reserve = Math.round(profit * 0.17);
+  const cashFlow = Math.round(profit * 0.1);
+  const todayRevenue = data.history.revenue.at(-1) || 0;
+  const todayProfit = data.history.profit.at(-1) || 0;
+  return {
+    revenue,
+    costs,
+    profit,
+    margin: revenue ? round((profit / revenue) * 100, 1) : 0,
+    roi: round((profit / Math.max(costs, 1)) * 100, 1),
+    balance,
+    reserve,
+    cashFlow,
+    todayRevenue,
+    todayProfit,
+    conversion: 25.4,
+  };
+}
+
+function drawCharts() {
+  if (ui.section === "dashboard") {
+    drawMultiLineChart("dashboard-chart", getRangeHistory(), [
+      { key: "revenue", color: "#2f7fff", fill: "rgba(47,127,255,0.12)" },
+      { key: "profit", color: "#29d467", fill: "rgba(41,212,103,0.11)" },
+      { key: "costs", color: "#f2b11b", fill: "rgba(242,177,27,0.08)" },
+    ]);
+  }
+
+  if (ui.section === "financeiro") {
+    drawMultiLineChart("finance-chart", getRangeHistory(), [
+      { key: "revenue", color: "#2f7fff", fill: "rgba(47,127,255,0.12)" },
+      { key: "profit", color: "#29d467", fill: "rgba(41,212,103,0.11)" },
+      { key: "costs", color: "#ef4444", fill: "rgba(239,68,68,0.08)" },
+    ]);
+  }
+}
+
+function drawMultiLineChart(id, history, series) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const { width, height } = canvas;
+  ctx.clearRect(0, 0, width, height);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.05)";
+  ctx.setLineDash([4, 6]);
+  for (let i = 0; i < 4; i += 1) {
+    const y = 40 + i * 70;
+    ctx.beginPath();
+    ctx.moveTo(60, y);
+    ctx.lineTo(width - 24, y);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  const values = series.flatMap((line) => history[line.key]);
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const labels = history.labels;
+  const stepX = (width - 110) / Math.max(labels.length - 1, 1);
+
+  series.forEach((line) => {
+    const points = history[line.key].map((value, index) => {
+      const x = 60 + index * stepX;
+      const normalized = (value - min) / Math.max(max - min, 1);
+      const y = height - 52 - normalized * (height - 110);
+      return { x, y };
+    });
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 0; i < points.length - 1; i += 1) {
+      const current = points[i];
+      const next = points[i + 1];
+      const cx = (current.x + next.x) / 2;
+      ctx.bezierCurveTo(cx, current.y, cx, next.y, next.x, next.y);
+    }
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = line.color;
+    ctx.shadowColor = line.color;
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, height - 50);
+    ctx.lineTo(points[0].x, points[0].y);
+    for (let i = 0; i < points.length - 1; i += 1) {
+      const current = points[i];
+      const next = points[i + 1];
+      const cx = (current.x + next.x) / 2;
+      ctx.bezierCurveTo(cx, current.y, cx, next.y, next.x, next.y);
+    }
+    ctx.lineTo(points.at(-1).x, height - 50);
+    ctx.closePath();
+    ctx.fillStyle = line.fill;
+    ctx.fill();
+  });
+
+  ctx.fillStyle = "rgba(138,143,158,0.9)";
+  ctx.font = "12px Inter";
+  labels.forEach((label, index) => {
+    const x = 60 + index * stepX;
+    ctx.fillText(label, x - 10, height - 20);
+  });
+}
+
+function sparkline(values, color) {
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const width = 220;
+  const height = 44;
+  const stepX = width / Math.max(values.length - 1, 1);
+  const points = values
+    .map((value, index) => {
+      const x = index * stepX;
+      const normalized = (value - min) / Math.max(max - min, 1);
+      const y = height - normalized * (height - 6) - 2;
+      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
+
   return `
-    <section class="empty-box">
-      <div>
-        <strong>${message}</strong>
-      </div>
-    </section>
+    <svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="spark-fill-${slug(color)}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${color}" stop-opacity="0.25"></stop>
+          <stop offset="100%" stop-color="${color}" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <path d="${points}" stroke="${color}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
   `;
 }
 
-function getSummary() {
-  const filteredHistory = getFilteredHistory(ui.billingRange);
-  const filteredRemessas = getFilteredRemessas(ui.billingRange);
-  const filteredCosts = getFilteredCosts(ui.billingRange);
-  const profitTotal = filteredHistory.profit.reduce((sum, item) => sum + item, 0);
-  const revenueTotal = filteredHistory.revenue.reduce((sum, item) => sum + item, 0);
-  const costSeriesTotal = filteredHistory.costs.reduce((sum, item) => sum + item, 0);
-  const costEntriesTotal = filteredCosts.reduce((sum, item) => sum + item.value, 0);
-  const costTotal = Math.max(costSeriesTotal, costEntriesTotal);
-  const todayProfit = filteredHistory.profit[filteredHistory.profit.length - 1] ?? 0;
-  const netProfit = revenueTotal - costTotal;
-  const activeOperators = data.operators.filter((item) => item.status === "ativo").length;
-  const totalAccounts = data.networks.reduce((sum, item) => sum + item.accounts, 0);
-  const totalDeposited = data.networks.reduce((sum, item) => sum + item.deposits * 170, 0);
-  const totalWithdrawn = Math.max(0, totalDeposited - profitTotal);
-  const completedRemessas = filteredRemessas.filter((item) => item.status === "concluida").length;
-  const avgPerAccount = totalAccounts ? netProfit / totalAccounts : 0;
-  const avgTicket = completedRemessas ? netProfit / completedRemessas : 0;
-  const approvalRate = Math.round(
-    data.networks.reduce((sum, item) => sum + item.approvalRate, 0) / data.networks.length
+function paintStaticIcons() {
+  document.querySelectorAll("[data-icon]").forEach((node) => {
+    node.innerHTML = iconMarkup(node.dataset.icon);
+  });
+}
+
+function paintDynamicIcons() {
+  content.querySelectorAll("[data-icon]").forEach((node) => {
+    node.innerHTML = iconMarkup(node.dataset.icon);
+  });
+}
+
+function iconMarkup(name) {
+  const icons = {
+    dashboard: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+    sun: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>`,
+    activity: `<svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>`,
+    star: `<svg viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9"></polygon></svg>`,
+    users: `<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
+    "user-cog": `<svg viewBox="0 0 24 24"><circle cx="8" cy="7" r="4"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h4"></path><circle cx="18" cy="17" r="3"></circle><path d="m18 12 .7 1.4 1.6.2-1.1 1.1.2 1.6-1.4-.7-1.4.7.2-1.6-1.1-1.1 1.6-.2z"></path></svg>`,
+    network: `<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"></circle><circle cx="5" cy="19" r="2"></circle><circle cx="19" cy="19" r="2"></circle><path d="M12 7v4"></path><path d="M7 17l4-4"></path><path d="M17 17l-4-4"></path></svg>`,
+    layers: `<svg viewBox="0 0 24 24"><path d="m12 2 9 4.5-9 4.5-9-4.5z"></path><path d="m3 12 9 4.5 9-4.5"></path><path d="m3 17 9 4.5 9-4.5"></path></svg>`,
+    target: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>`,
+    banknote: `<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01"></path><path d="M18 12h.01"></path></svg>`,
+    receipt: `<svg viewBox="0 0 24 24"><path d="M4 3h16v18l-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"></path><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path></svg>`,
+    wallet: `<svg viewBox="0 0 24 24"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"></path><path d="M22 12h-8"></path><path d="M18 9v6"></path></svg>`,
+    repeat: `<svg viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="m7 22-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>`,
+    chart: `<svg viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="m7 14 4-4 3 3 5-7"></path></svg>`,
+    bell: `<svg viewBox="0 0 24 24"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5"></path><path d="M10 21a2 2 0 0 0 4 0"></path></svg>`,
+    moon: `<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path></svg>`,
+    search: `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg>`,
+    globe: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15 15 0 0 1 0 20"></path><path d="M12 2a15 15 0 0 0 0 20"></path></svg>`,
+    message: `<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+    calendar: `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>`,
+    "chart-up": `<svg viewBox="0 0 24 24"><path d="M3 17 9 11 13 15 21 7"></path><path d="M14 7h7v7"></path></svg>`,
+    percent: `<svg viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>`,
+    "check-circle": `<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="m9 11 3 3L22 4"></path></svg>`,
+    clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>`,
+    shield: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`,
+    "alert-circle": `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
+    "chevrons-left": `<svg viewBox="0 0 24 24"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>`,
+  };
+
+  return (icons[name] || "").replace(
+    "<svg ",
+    '<svg fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" '
   );
-  const avgEfficiency = Math.round(data.operators.reduce((sum, item) => sum + item.score, 0) / data.operators.length);
-  const margin = revenueTotal ? Math.round((netProfit / revenueTotal) * 100) : 0;
-  const avgGoalProfit = data.goals.closed ? netProfit / data.goals.closed : 0;
-  const forecastDays = Math.max(1, Math.ceil(Math.max(0, data.goals.global - netProfit) / Math.max(todayProfit, 1)));
-  const projectedMonth = todayProfit * 22;
-
-  return {
-    filteredHistory,
-    filteredRemessas,
-    netProfit,
-    revenueTotal,
-    profitTotal,
-    costTotal,
-    todayProfit,
-    activeOperators,
-    totalAccounts,
-    totalDeposited,
-    totalWithdrawn,
-    completedRemessas,
-    avgPerAccount,
-    avgTicket,
-    avgEfficiency,
-    margin,
-    approvalRate,
-    avgGoalProfit,
-    forecastDays,
-    projectedMonth,
-    closedGoals: data.goals.closed,
-    trend: filteredHistory.profit.at(-1) >= filteredHistory.profit[0] ? "subida controlada" : "oscilação em revisão",
-    riskTone: approvalRate >= 82 ? "good" : approvalRate >= 74 ? "alert" : "danger",
-    riskLabel: approvalRate >= 82 ? "Risco baixo" : approvalRate >= 74 ? "Risco moderado" : "Risco alto",
-    insights: [
-      `A margem operacional atual está em ${margin}% com ${completedRemessas} remessas concluídas no recorte.`,
-      `A melhor rede segue em ${escapeHtml(getTopNetwork().name)} e o melhor operador é ${escapeHtml(getTopOperator().name)}.`,
-      `Com o ritmo atual, a meta global pode ser alcançada em aproximadamente ${forecastDays} dias.`,
-    ],
-  };
-}
-
-function getOperatorSummary() {
-  const total = data.operators.length;
-  const active = data.operators.filter((item) => item.status === "ativo").length;
-  const depositors = data.operators.reduce((sum, item) => sum + item.deposits, 0);
-  const profit = data.operators.reduce((sum, item) => sum + item.profit, 0);
-  const accuracy = Math.round(data.operators.reduce((sum, item) => sum + item.score, 0) / total);
-  const top = getTopOperator();
-
-  return {
-    total,
-    active,
-    depositors,
-    profit,
-    accuracy,
-    topOperator: top.name,
-    topScore: top.score,
-    avgProfit: profit / total,
-  };
-}
-
-function getCostSummary() {
-  const periodCosts = getFilteredCosts(ui.billingRange);
-  const periodCost = periodCosts.reduce((sum, item) => sum + item.value, 0);
-  const todayValue = today();
-  const today = data.costs.filter((item) => item.date === todayValue).reduce((sum, item) => sum + item.value, 0);
-  const netAfterCosts = getSummary().profitTotal - periodCost;
-  const avgCost = periodCosts.length ? periodCost / periodCosts.length : 0;
-  const grouped = groupBy(periodCosts, "type");
-  const categories = Object.entries(grouped)
-    .map(([label, items]) => ({
-      label,
-      value: items.reduce((sum, item) => sum + item.value, 0),
-    }))
-    .sort((a, b) => b.value - a.value);
-  const total = categories.reduce((sum, item) => sum + item.value, 0) || 1;
-
-  return {
-    today,
-    periodCost,
-    netAfterCosts,
-    avgCost,
-    weight: Math.round((periodCost / Math.max(getSummary().revenueTotal, 1)) * 100),
-    topCategory: categories[0] ?? { label: "Sem categoria", value: 0 },
-    categories: categories.map((item) => ({
-      ...item,
-      percent: Math.round((item.value / total) * 100),
-    })),
-  };
-}
-
-function getTopOperator() {
-  return data.operators.slice().sort((a, b) => b.profit - a.profit)[0];
-}
-
-function getTopNetwork() {
-  return data.networks.slice().sort((a, b) => b.profit - a.profit)[0];
-}
-
-function getPayrollTotal() {
-  return data.operators.reduce((sum, item) => {
-    const fixed = item.deposits * data.settings.perDepositor;
-    const variable = item.profit * (data.settings.profitShare / 100);
-    return sum + fixed + variable;
-  }, 0);
-}
-
-function getFilteredHistory(range) {
-  const labels = data.history.labels;
-  const profit = data.history.profit;
-  const revenue = data.history.revenue;
-  const costs = data.history.costs;
-  const amount = range === "hoje" ? 1 : range === "7d" ? 7 : range === "30d" ? 30 : labels.length;
-  const start = Math.max(0, labels.length - amount);
-
-  return {
-    labels: labels.slice(start),
-    profit: profit.slice(start),
-    revenue: revenue.slice(start),
-    costs: costs.slice(start),
-  };
-}
-
-function getFilteredRemessas(range) {
-  const days = range === "hoje" ? 1 : range === "7d" ? 7 : range === "30d" ? 30 : 9999;
-  return data.remessas.filter((item) => daysBetween(item.date, today()) < days);
-}
-
-function getFilteredCosts(range) {
-  const days = range === "hoje" ? 1 : range === "7d" ? 7 : range === "30d" ? 30 : 9999;
-  return data.costs.filter((item) => daysBetween(item.date, today()) < days);
 }
 
 function submitCost(event) {
   event.preventDefault();
-  const item = {
+  data.costs.unshift({
     id: `cost-${Date.now()}`,
-    type: document.querySelector("#cost-type").value,
+    category: document.querySelector("#cost-type").value,
+    supplier: document.querySelector("#cost-supplier").value.trim(),
     value: Number(document.querySelector("#cost-value").value),
     date: document.querySelector("#cost-date").value,
-    owner: document.querySelector("#cost-owner").value.trim(),
-    note: document.querySelector("#cost-note").value.trim() || "Sem observação.",
-  };
-
-  data.costs.push(item);
-  persist();
+    method: document.querySelector("#cost-method").value,
+    status: document.querySelector("#cost-status").value,
+    description: document.querySelector("#cost-note").value.trim() || "Sem descrição adicional",
+  });
+  persistData();
   closeDialog("cost-dialog");
   event.target.reset();
-  showToast("Custo salvo com sucesso.", "good");
+  showToast("Novo custo salvo com sucesso.", "good");
   render();
 }
 
 function submitRemessa(event) {
   event.preventDefault();
-  const item = {
+  data.remessas.unshift({
     id: document.querySelector("#remessa-id").value.trim(),
     operator: document.querySelector("#remessa-operator").value.trim(),
+    network: document.querySelector("#remessa-network").value.trim(),
+    platform: document.querySelector("#remessa-platform").value.trim(),
     value: Number(document.querySelector("#remessa-value").value),
     status: document.querySelector("#remessa-status").value,
     source: document.querySelector("#remessa-source").value.trim(),
     target: document.querySelector("#remessa-target").value.trim(),
     date: document.querySelector("#remessa-date").value,
-    note: document.querySelector("#remessa-note").value.trim() || "Sem observação.",
-  };
-
-  data.remessas.unshift(item);
-  persist();
+    roi: Number(document.querySelector("#remessa-roi").value),
+    note: document.querySelector("#remessa-note").value.trim() || "Sem observação",
+  });
+  persistData();
   closeDialog("remessa-dialog");
   event.target.reset();
-  showToast("Nova operação registrada.", "good");
+  showToast("Nova operação registrada com sucesso.", "good");
   render();
 }
 
@@ -1425,49 +1539,31 @@ function fillRemessaDefaults() {
   document.querySelector("#remessa-date").value = today();
 }
 
-function generateInvite() {
-  const code = cryptoRandomHex(40);
-  data.invites.unshift({
-    id: `invite-${Date.now()}`,
-    code,
-    status: "Pendente",
-    date: today(),
-    expiresAt: addDays(today(), 7),
-  });
-  persist();
-  showToast("Novo convite gerado para operador.", "good");
-  render();
-}
-
 function importJson(event) {
   const [file] = event.target.files;
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const parsed = JSON.parse(String(reader.result));
-      if (!parsed.version || !parsed.operators || !parsed.networks) {
-        throw new Error("Formato inválido");
-      }
+      if (!parsed.version) throw new Error("invalid");
       data = parsed;
-      persist();
+      persistData();
       showToast("Base importada com sucesso.", "good");
       render();
     } catch {
-      showToast("Não foi possível importar este arquivo.", "danger");
+      showToast("Não foi possível importar esse arquivo.", "danger");
     }
     event.target.value = "";
   };
-
   reader.readAsText(file);
 }
 
 async function resetData() {
   const response = await fetch("data/seed.json");
   data = await response.json();
-  persist();
-  showToast("Modelo restaurado com sucesso.", "alert");
+  persistData();
+  showToast("Base restaurada para o modelo inicial.", "alert");
   render();
 }
 
@@ -1485,7 +1581,6 @@ function exportJson() {
 function openDialog(id) {
   if (id === "cost-dialog") {
     document.querySelector("#cost-date").value = today();
-    document.querySelector("#cost-owner").value = data.profile.owner;
   }
   document.getElementById(id).showModal();
 }
@@ -1494,216 +1589,131 @@ function closeDialog(id) {
   document.getElementById(id).close();
 }
 
-function copyValue(value) {
-  navigator.clipboard?.writeText(value);
-  showToast("Conteúdo copiado para a área de transferência.", "good");
-}
-
 function showToast(message, tone = "good") {
   const toast = document.createElement("div");
   toast.className = `toast toast--${tone}`;
   toast.textContent = message;
   toastRegion.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 2600);
+  setTimeout(() => toast.remove(), 2600);
 }
 
-function drawDashboardCharts() {
-  const history = getFilteredHistory(ui.billingRange);
-  drawMultiLineChart("dashboard-profit-chart", history.labels, [
-    { values: history.revenue, stroke: "#57d2ff", fill: "rgba(87,210,255,0.12)" },
-    { values: history.profit, stroke: "#76ffbc", fill: "rgba(118,255,188,0.12)" },
-    { values: history.costs, stroke: "#ffb05c", fill: "rgba(255,176,92,0.08)" },
-  ]);
+function getRangeHistory() {
+  const map = {
+    "7d": 7,
+    "30d": data.history.labels.length,
+    "90d": data.history.labels.length,
+    "12m": data.history.labels.length,
+  };
+  const size = map[ui.range] || data.history.labels.length;
+  const start = Math.max(0, data.history.labels.length - size);
+  return {
+    labels: data.history.labels.slice(start),
+    revenue: data.history.revenue.slice(start),
+    profit: data.history.profit.slice(start),
+    costs: data.history.costs.slice(start),
+  };
 }
 
-function drawBillingCharts() {
-  const history = getFilteredHistory(ui.billingRange);
-  drawMultiLineChart("billing-overview-chart", history.labels, [
-    { values: history.profit, stroke: "#76ffbc", fill: "rgba(118,255,188,0.12)" },
-    { values: history.revenue, stroke: "#57d2ff", fill: "rgba(87,210,255,0.08)" },
-  ]);
-  drawMultiLineChart("billing-evolution-chart", history.labels, [
-    { values: history.revenue, stroke: "#57d2ff", fill: "rgba(87,210,255,0.08)" },
-    { values: history.profit, stroke: "#76ffbc", fill: "rgba(118,255,188,0.08)" },
-    { values: history.costs, stroke: "#ffb05c", fill: "rgba(255,176,92,0.06)" },
-  ]);
-  drawBarChart("billing-compare-chart", history.labels, history.profit, "#39c7ff");
+function sum(items, key) {
+  if (!Array.isArray(items)) return 0;
+  if (!key) return items.reduce((acc, item) => acc + item, 0);
+  return items.reduce((acc, item) => acc + Number(item[key] || 0), 0);
 }
 
-function drawMultiLineChart(id, labels, series) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const { width, height } = canvas;
-  ctx.clearRect(0, 0, width, height);
-
-  ctx.strokeStyle = "rgba(255,255,255,0.05)";
-  ctx.setLineDash([4, 8]);
-  for (let i = 1; i < 4; i += 1) {
-    const y = (height / 4) * i;
-    ctx.beginPath();
-    ctx.moveTo(40, y);
-    ctx.lineTo(width - 20, y);
-    ctx.stroke();
-  }
-  ctx.setLineDash([]);
-
-  const allValues = series.flatMap((item) => item.values);
-  const max = Math.max(...allValues, 1);
-  const min = Math.min(...allValues, 0);
-  const stepX = (width - 90) / Math.max(labels.length - 1, 1);
-
-  series.forEach((line) => {
-    const points = line.values.map((value, index) => {
-      const x = 44 + index * stepX;
-      const normalized = (value - min) / Math.max(max - min, 1);
-      const y = height - 40 - normalized * (height - 90);
-      return { x, y };
-    });
-
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let index = 0; index < points.length - 1; index += 1) {
-      const current = points[index];
-      const next = points[index + 1];
-      const controlX = (current.x + next.x) / 2;
-      ctx.bezierCurveTo(controlX, current.y, controlX, next.y, next.x, next.y);
-    }
-
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = line.stroke;
-    ctx.shadowColor = line.stroke;
-    ctx.shadowBlur = 16;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, height - 30);
-    ctx.lineTo(points[0].x, points[0].y);
-    for (let index = 0; index < points.length - 1; index += 1) {
-      const current = points[index];
-      const next = points[index + 1];
-      const controlX = (current.x + next.x) / 2;
-      ctx.bezierCurveTo(controlX, current.y, controlX, next.y, next.x, next.y);
-    }
-    ctx.lineTo(points.at(-1).x, height - 30);
-    ctx.closePath();
-    ctx.fillStyle = line.fill;
-    ctx.fill();
-
-    points.forEach((point) => {
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = line.stroke;
-      ctx.fill();
-    });
-  });
-
-  labels.forEach((label, index) => {
-    const x = 44 + index * stepX;
-    ctx.fillStyle = "rgba(191,203,221,0.7)";
-    ctx.font = "12px Inter";
-    ctx.fillText(label, x - 14, height - 10);
-  });
+function average(items, key) {
+  return items.length ? sum(items, key) / items.length : 0;
 }
 
-function drawBarChart(id, labels, values, color) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const { width, height } = canvas;
-  ctx.clearRect(0, 0, width, height);
-  const max = Math.max(...values, 1);
-  const barWidth = (width - 120) / values.length;
-
-  values.forEach((value, index) => {
-    const barHeight = (value / max) * (height - 70);
-    const x = 54 + index * barWidth;
-    const y = height - 30 - barHeight;
-    ctx.fillStyle = color;
-    ctx.globalAlpha = 0.85;
-    ctx.fillRect(x, y, Math.max(18, barWidth - 18), barHeight);
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(191,203,221,0.7)";
-    ctx.font = "12px Inter";
-    ctx.fillText(labels[index], x, height - 10);
-  });
-}
-
-function nextRemessaId() {
-  const max = data.remessas.reduce((acc, item) => {
-    const value = Number(item.id.replace(/\D/g, ""));
-    return Number.isFinite(value) ? Math.max(acc, value) : acc;
-  }, 9800);
-  return `REM-${max + 1}`;
-}
-
-function groupBy(items, key) {
-  return items.reduce((acc, item) => {
-    acc[item[key]] ??= [];
-    acc[item[key]].push(item);
-    return acc;
-  }, {});
-}
-
-function labelRange(value) {
-  if (value === "hoje") return "Hoje";
-  if (value === "7d") return "7 dias";
-  if (value === "30d") return "30 dias";
-  return "Tudo";
-}
-
-function formatBRL(value) {
+function currency(value) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
-function formatDate(date) {
-  return new Intl.DateTimeFormat("pt-BR").format(new Date(`${date}T00:00:00`));
+function compactCurrency(value) {
+  if (value >= 1000000) return `${currency(value / 1000000).replace("R$", "R$ ")}M`;
+  if (value >= 1000) return `${currency(value / 1000).replace("R$", "R$ ")}k`;
+  return currency(value);
 }
 
-function formatDateTime(date) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+function formatGoalValue(item) {
+  return item.kind === "percent" ? `${item.current}` : compactPlain(item.current);
 }
 
-function daysBetween(startDate, endDate) {
-  const start = new Date(`${startDate}T00:00:00`);
-  const end = new Date(`${endDate}T00:00:00`);
-  return Math.abs(Math.floor((end - start) / 86400000));
+function formatGoalTarget(item) {
+  return item.kind === "percent" ? `${item.target}` : compactPlain(item.target);
+}
+
+function compactPlain(value) {
+  if (value >= 1000000) return `${Math.round(value / 10000) / 100}M`;
+  if (value >= 1000) return `${Math.round(value / 10) / 100}k`;
+  return String(value);
+}
+
+function labelRange(value) {
+  return {
+    "7d": "7D",
+    "30d": "30 dias",
+    "90d": "90D",
+    "12m": "12M",
+  }[value] || "30 dias";
 }
 
 function today() {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
-function addDays(date, amount) {
-  const current = new Date(`${date}T00:00:00`);
-  current.setDate(current.getDate() + amount);
-  const year = current.getFullYear();
-  const month = String(current.getMonth() + 1).padStart(2, "0");
-  const day = String(current.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+function formatDateTime(date) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
 }
 
-function cryptoRandomHex(length) {
-  const chars = "abcdef0123456789";
-  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+function nextRemessaId() {
+  const max = data.remessas.reduce((acc, item) => {
+    const value = Number(String(item.id).replace(/\D/g, ""));
+    return Number.isFinite(value) ? Math.max(acc, value) : acc;
+  }, 4820);
+  return `REM-${max + 1}`;
+}
+
+function normalizeStatus(value) {
+  return String(value).toLowerCase();
+}
+
+function normalizeTimelineFilter(value) {
+  return String(value).toLowerCase();
+}
+
+function matchesSearch(fields) {
+  if (!ui.search) return true;
+  return fields.some((field) => String(field).toLowerCase().includes(ui.search));
+}
+
+function initials(name) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function round(value, digits = 0) {
+  const base = 10 ** digits;
+  return Math.round(value * base) / base;
+}
+
+function slug(value) {
+  return value.replace(/[^a-z0-9]/gi, "");
+}
+
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function escapeHtml(value) {
@@ -1719,8 +1729,8 @@ async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   try {
     await navigator.serviceWorker.register("sw.js");
-  } catch (error) {
-    console.error(error);
+  } catch {
+    // noop
   }
 }
 

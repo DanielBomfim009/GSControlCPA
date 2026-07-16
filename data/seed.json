@@ -1,368 +1,132 @@
 {
-  "version": "2026.07.gs-control-cpa.v2",
-  "brand": {
-    "name": "GS Control CPA",
-    "tagline": "identidade própria, dados locais e leitura operacional de alta clareza"
-  },
+  "version": "2026.07.gs-control-cpa.v3",
   "profile": {
     "owner": "Daniel Bomfim",
-    "workspace": "Núcleo GS",
-    "status": "Operação estável",
-    "updatedAt": "16/07/2026, 10:25"
-  },
-  "goals": {
-    "daily": 1200,
-    "monthly": 45000,
-    "global": 150000,
-    "closed": 14
-  },
-  "settings": {
-    "perDepositor": 2.5,
-    "profitShare": 12,
-    "operationModel": "Salário + baú com meta diária",
-    "favoriteSlots": ["Fortune Tiger", "Double", "Crash"],
-    "preferredBanks": ["Nubank", "Inter", "Santander"]
+    "role": "Admin • Enterprise",
+    "updatedAt": "16/07/2026, 11:22"
   },
   "history": {
-    "labels": ["08/07", "09/07", "10/07", "11/07", "12/07", "13/07", "14/07", "15/07", "16/07"],
-    "profit": [920, 1080, 1180, 990, 1340, 1420, 1560, 1710, 1840],
-    "revenue": [1880, 2120, 2240, 1970, 2480, 2640, 2780, 2960, 3180],
-    "costs": [420, 440, 410, 460, 470, 490, 510, 530, 560]
+    "labels": ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
+    "revenue": [238800, 289500, 276400, 338900, 412600, 369700, 476200],
+    "profit": [126700, 152900, 145200, 198700, 226100, 201400, 258900],
+    "costs": [112100, 136600, 131200, 146300, 186500, 168300, 217300],
+    "roi": [221, 247, 238, 281, 301, 286, 342],
+    "activeOperators": [60, 72, 76, 81, 93, 97, 98]
   },
+  "tasks": [
+    { "id": "task-1", "title": "Revisar operadores abaixo de 60% da meta", "when": "HOJE", "done": false },
+    { "id": "task-2", "title": "Aprovar 3 remessas PIX pendentes", "when": "HOJE", "done": false },
+    { "id": "task-3", "title": "Reunião com direção — projeção mensal", "when": "14H", "done": false },
+    { "id": "task-4", "title": "Revisar custos de marketing", "when": "ONTEM", "done": true },
+    { "id": "task-5", "title": "Contatar Rafael Torres — promoção", "when": "AMANHÃ", "done": false }
+  ],
+  "priorityAlerts": [
+    { "title": "0 metas em risco", "body": "Abaixo de 70% do objetivo com prazo próximo.", "tone": "warning" },
+    { "title": "Custo elevado", "body": "Categoria Marketing +12% acima da média.", "tone": "danger" },
+    { "title": "Rede em alta", "body": "Alpha Network bateu 92% da meta mensal.", "tone": "success" }
+  ],
+  "activity": [
+    { "title": "Meta batida", "description": "Rede Aurora atingiu 92% da meta mensal.", "time": "há 2min" },
+    { "title": "Custo elevado", "description": "Plataforma Kraken +18% acima da média.", "time": "há 12min" },
+    { "title": "Novo operador", "description": "Rafael Torres foi promovido a Gerente Silver.", "time": "há 34min" },
+    { "title": "Ranking atualizado", "description": "3 operadores subiram para o tier Ouro.", "time": "há 1h" },
+    { "title": "PIX pendente", "description": "Remessa #4821 aguarda aprovação.", "time": "há 2h" }
+  ],
+  "timeline": [
+    { "type": "operador", "title": "Operador Lucas Almeida cadastrado", "subtitle": "Rede Alpha Network • Plataforma Fortuna Pro", "author": "Lucas Almeida • Operador", "time": "AGORA" },
+    { "type": "operador", "title": "Operador Mariana Costa cadastrado", "subtitle": "Rede Nexus Prime • Plataforma BetX", "author": "Mariana Costa • Operador", "time": "12MIN" },
+    { "type": "operador", "title": "Operador Pedro Henrique cadastrado", "subtitle": "Rede Vortex • Plataforma PlayCore", "author": "Pedro Henrique • Operador", "time": "3H" },
+    { "type": "operador", "title": "Operador Ana Beatriz cadastrado", "subtitle": "Rede Quantum • Plataforma MaxWin", "author": "Ana Beatriz • Operador", "time": "12MIN" },
+    { "type": "operador", "title": "Operador Rafael Souza cadastrado", "subtitle": "Rede Orion • Plataforma SpinHub", "author": "Rafael Souza • Operador", "time": "2MIN" },
+    { "type": "meta", "title": "Meta 'Meta anual da empresa' criada", "subtitle": "Objetivo de R$ 12.000.000 até 2026-12-31", "author": "Direção", "time": "1H" },
+    { "type": "custo", "title": "Custo de marketing revisado", "subtitle": "Fatura 7 ajustada em +8.5%", "author": "Financeiro", "time": "2H" },
+    { "type": "pix", "title": "Chave PIX em revisão", "subtitle": "Conta triagem alterada para monitoramento", "author": "Controle interno", "time": "4H" },
+    { "type": "remessa", "title": "Remessa REM-4821 criada", "subtitle": "Nova entrada de alto giro adicionada ao fluxo", "author": "Daniel Bomfim", "time": "5H" },
+    { "type": "edição", "title": "Rede Vortex atualizada", "subtitle": "Meta e performance recalculadas", "author": "Núcleo GS", "time": "7H" },
+    { "type": "exclusão", "title": "Custo teste removido", "subtitle": "Item duplicado excluído do histórico", "author": "Financeiro", "time": "8H" }
+  ],
   "operators": [
-    {
-      "name": "Rodrigo Assis",
-      "status": "ativo",
-      "network": "Atlas Prime",
-      "score": 94,
-      "deposits": 22,
-      "profit": 6420,
-      "closedGoals": 5,
-      "speed": "rápida",
-      "specialty": "escala premium"
-    },
-    {
-      "name": "Ana Beatriz",
-      "status": "ativo",
-      "network": "Blue Seven",
-      "score": 89,
-      "deposits": 18,
-      "profit": 5210,
-      "closedGoals": 4,
-      "speed": "constante",
-      "specialty": "banco e retenção"
-    },
-    {
-      "name": "Diego Pinto",
-      "status": "ativo",
-      "network": "Atlas Prime",
-      "score": 84,
-      "deposits": 14,
-      "profit": 3980,
-      "closedGoals": 3,
-      "speed": "estável",
-      "specialty": "tráfego aquecido"
-    },
-    {
-      "name": "Larissa Oliveira",
-      "status": "pausado",
-      "network": "Orion Play",
-      "score": 76,
-      "deposits": 11,
-      "profit": 2570,
-      "closedGoals": 1,
-      "speed": "moderada",
-      "specialty": "reativação"
-    },
-    {
-      "name": "Lucas Ferreira",
-      "status": "ativo",
-      "network": "Blue Seven",
-      "score": 81,
-      "deposits": 13,
-      "profit": 3440,
-      "closedGoals": 2,
-      "speed": "média",
-      "specialty": "abertura de ciclo"
-    }
+    { "id": "OP-2000", "name": "Lucas Almeida", "manager": "Lucas Almeida", "network": "Alpha Network", "platform": "Fortuna Pro", "status": "online", "goalPct": 84, "profit": 46764, "roi": 855, "lastSeen": "agora", "city": "Brasília/PR" },
+    { "id": "OP-2001", "name": "Mariana Costa", "manager": "Mariana Costa", "network": "Nexus Prime", "platform": "BetX", "status": "offline", "goalPct": 60, "profit": 17627, "roi": 60, "lastSeen": "12min", "city": "Curitiba/SP" },
+    { "id": "OP-2002", "name": "Pedro Henrique", "manager": "Pedro Henrique", "network": "Vortex", "platform": "PlayCore", "status": "online", "goalPct": 58, "profit": 2439, "roi": -77, "lastSeen": "3h", "city": "Curitiba/BA" },
+    { "id": "OP-2003", "name": "Ana Beatriz", "manager": "Ana Beatriz", "network": "Quantum", "platform": "MaxWin", "status": "trabalhando", "goalPct": 63, "profit": 5033, "roi": 3, "lastSeen": "12min", "city": "São Paulo/PE" },
+    { "id": "OP-2004", "name": "Rafael Souza", "manager": "Rafael Souza", "network": "Orion", "platform": "SpinHub", "status": "online", "goalPct": 100, "profit": 29242, "roi": 380, "lastSeen": "2min", "city": "Porto Alegre/PE" },
+    { "id": "OP-2005", "name": "Camila Ribeiro", "manager": "Camila Ribeiro", "network": "Nebula", "platform": "TurboBet", "status": "pausa", "goalPct": 80, "profit": 32901, "roi": 773, "lastSeen": "1h", "city": "Fortaleza/DF" },
+    { "id": "OP-2006", "name": "Bruno Lima", "manager": "Bruno Lima", "network": "Meridian", "platform": "ProGaming", "status": "trabalhando", "goalPct": 76, "profit": 19842, "roi": 92, "lastSeen": "2min", "city": "Recife/DF" }
+  ],
+  "managers": [
+    { "id": "GER-1000", "name": "Lucas Almeida", "role": "Estratégia", "email": "lucas.almeida@gscontrol.com", "team": 20, "profit": 214863, "status": "ativo" },
+    { "id": "GER-1001", "name": "Mariana Costa", "role": "Financeiro", "email": "mariana.costa@gscontrol.com", "team": 20, "profit": 250462, "status": "ativo" },
+    { "id": "GER-1002", "name": "Pedro Henrique", "role": "Estratégia", "email": "pedro.henrique@gscontrol.com", "team": 22, "profit": 123838, "status": "ativo" },
+    { "id": "GER-1003", "name": "Ana Beatriz", "role": "Operações", "email": "ana.beatriz@gscontrol.com", "team": 14, "profit": 154993, "status": "ativo" },
+    { "id": "GER-1004", "name": "Rafael Souza", "role": "Financeiro", "email": "rafael.souza@gscontrol.com", "team": 20, "profit": 183925, "status": "ativo" },
+    { "id": "GER-1005", "name": "Camila Ribeiro", "role": "Comercial", "email": "camila.ribeiro@gscontrol.com", "team": 9, "profit": 290635, "status": "ativo" },
+    { "id": "GER-1006", "name": "Bruno Lima", "role": "Comercial", "email": "bruno.lima@gscontrol.com", "team": 7, "profit": 315122, "status": "ativo" },
+    { "id": "GER-1007", "name": "Gabriel Rocha", "role": "Growth", "email": "gabriel.rocha@gscontrol.com", "team": 18, "profit": 97288, "status": "ativo" }
   ],
   "networks": [
-    {
-      "name": "Atlas Prime",
-      "score": 92,
-      "profit": 12480,
-      "closedGoals": 7,
-      "deposits": 38,
-      "remessas": 12,
-      "accounts": 25,
-      "approvalRate": 88,
-      "risk": "baixo",
-      "recommendation": "Manter volume e concentrar operadores mais fortes nesta rede."
-    },
-    {
-      "name": "Blue Seven",
-      "score": 84,
-      "profit": 8760,
-      "closedGoals": 5,
-      "deposits": 31,
-      "remessas": 9,
-      "accounts": 18,
-      "approvalRate": 81,
-      "risk": "moderado",
-      "recommendation": "Escalar com cautela e revisar janelas de saque no fim da tarde."
-    },
-    {
-      "name": "Orion Play",
-      "score": 73,
-      "profit": 4280,
-      "closedGoals": 2,
-      "deposits": 16,
-      "remessas": 5,
-      "accounts": 10,
-      "approvalRate": 75,
-      "risk": "moderado",
-      "recommendation": "Usar como rede auxiliar até recuperar consistência e aprovação."
-    },
-    {
-      "name": "Titan Flow",
-      "score": 67,
-      "profit": 2910,
-      "closedGoals": 1,
-      "deposits": 9,
-      "remessas": 4,
-      "accounts": 7,
-      "approvalRate": 70,
-      "risk": "alto",
-      "recommendation": "Reavaliar volume, limitar exposição e testar apenas operadores disciplinados."
-    }
+    { "code": "RED-100", "name": "Alpha Network", "mark": "A", "status": "ativa", "profit": 527000, "roi": 442, "operators": 20, "goalPct": 100, "performance": 81.1, "color": "linear-gradient(145deg,#5a8dff,#4077ef)" },
+    { "code": "RED-101", "name": "Nexus Prime", "mark": "N", "status": "pausada", "profit": 438000, "roi": 277, "operators": 25, "goalPct": 66, "performance": 83.6, "color": "linear-gradient(145deg,#24d38d,#13946f)" },
+    { "code": "RED-102", "name": "Vortex", "mark": "V", "status": "ativa", "profit": 517000, "roi": 475, "operators": 23, "goalPct": 100, "performance": 85.7, "color": "linear-gradient(145deg,#f2b31a,#c78d08)" },
+    { "code": "RED-103", "name": "Quantum", "mark": "Q", "status": "ativa", "profit": 419000, "roi": 237, "operators": 24, "goalPct": 100, "performance": 65.6, "color": "linear-gradient(145deg,#ff4ca3,#b33379)" },
+    { "code": "RED-104", "name": "Orion", "mark": "O", "status": "ativa", "profit": 315000, "roi": 263, "operators": 39, "goalPct": 89, "performance": 67.1, "color": "linear-gradient(145deg,#9d67ff,#6c46d9)" },
+    { "code": "RED-105", "name": "Nebula", "mark": "N", "status": "ativa", "profit": 380000, "roi": 353, "operators": 14, "goalPct": 83, "performance": 68.3, "color": "linear-gradient(145deg,#32bdf5,#2080cc)" }
   ],
-  "invites": [
-    {
-      "id": "invite-1",
-      "code": "3e4fc29a6b18f8a7d035d017eff55c9a9e88fb22",
-      "date": "2026-07-15",
-      "expiresAt": "2026-07-22",
-      "status": "Pendente"
-    },
-    {
-      "id": "invite-2",
-      "code": "8dfc2c9642a17f928f4f5d81e984ab0b0b723d6e",
-      "date": "2026-07-14",
-      "expiresAt": "2026-07-21",
-      "status": "Pendente"
-    }
+  "platforms": [
+    { "name": "Fortuna Pro", "domain": "https://fortunapro.io", "network": "Alpha Network", "category": "Slots", "operators": 19, "profit": 135578, "goalPct": 76, "status": "ativa" },
+    { "name": "BetX", "domain": "https://betx.io", "network": "Nexus Prime", "category": "Cassino", "operators": 8, "profit": 218835, "goalPct": 69, "status": "ativa" },
+    { "name": "PlayCore", "domain": "https://playcore.io", "network": "Vortex", "category": "Cassino", "operators": 13, "profit": 98933, "goalPct": 28, "status": "ativa" },
+    { "name": "MaxWin", "domain": "https://maxwin.io", "network": "Quantum", "category": "Live", "operators": 15, "profit": 222664, "goalPct": 61, "status": "ativa" },
+    { "name": "SpinHub", "domain": "https://spinhub.io", "network": "Orion", "category": "Slots", "operators": 11, "profit": 248668, "goalPct": 80, "status": "ativa" },
+    { "name": "TurboBet", "domain": "https://turbobet.io", "network": "Nebula", "category": "Poker", "operators": 23, "profit": 105217, "goalPct": 42, "status": "ativa" },
+    { "name": "ProGaming", "domain": "https://progaming.io", "network": "Meridian", "category": "Esportes", "operators": 16, "profit": 177342, "goalPct": 72, "status": "ativa" }
   ],
-  "remessas": [
-    {
-      "id": "REM-9801",
-      "operator": "Rodrigo Assis",
-      "value": 19650,
-      "source": "Nubank",
-      "target": "Santander",
-      "date": "2026-07-16",
-      "status": "concluida",
-      "note": "Lote premium da manhã"
-    },
-    {
-      "id": "REM-9802",
-      "operator": "Ana Beatriz",
-      "value": 11320,
-      "source": "Inter",
-      "target": "Itaú",
-      "date": "2026-07-16",
-      "status": "processando",
-      "note": "Conciliando duas entradas"
-    },
-    {
-      "id": "REM-9803",
-      "operator": "Diego Pinto",
-      "value": 7950,
-      "source": "Santander",
-      "target": "C6",
-      "date": "2026-07-15",
-      "status": "pendente",
-      "note": "Aguardando autorização"
-    },
-    {
-      "id": "REM-9804",
-      "operator": "Lucas Ferreira",
-      "value": 5480,
-      "source": "PicPay",
-      "target": "Inter",
-      "date": "2026-07-14",
-      "status": "concluida",
-      "note": "Fechamento do ciclo noturno"
-    }
+  "goalsSummary": {
+    "total": 8,
+    "closed": 3,
+    "inProgress": 5,
+    "average": 87
+  },
+  "goals": [
+    { "title": "Meta anual da empresa", "scope": "global", "owner": "Direção", "current": 8420000, "target": 12000000, "progress": 70.2, "due": "2026-12-31", "status": "em progresso", "kind": "money" },
+    { "title": "ROI mínimo trimestral", "scope": "global", "owner": "Direção", "current": 342, "target": 300, "progress": 100, "due": "2026-09-30", "status": "concluída", "kind": "percent" },
+    { "title": "Alpha Network Q4", "scope": "rede", "owner": "Bruno Lima", "current": 712000, "target": 800000, "progress": 89, "due": "2026-09-30", "status": "em progresso", "kind": "money" },
+    { "title": "Nexus Prime — mensal", "scope": "rede", "owner": "Camila Ribeiro", "current": 380000, "target": 480000, "progress": 79.2, "due": "2026-07-31", "status": "em progresso", "kind": "money" },
+    { "title": "Fortuna Pro — semanal", "scope": "plataforma", "owner": "Diego Pinto", "current": 182000, "target": 180000, "progress": 100, "due": "2026-07-18", "status": "concluída", "kind": "money" },
+    { "title": "SpinHub — mensal", "scope": "plataforma", "owner": "Rafael Souza", "current": 251000, "target": 300000, "progress": 83.7, "due": "2026-07-31", "status": "em progresso", "kind": "money" }
   ],
   "costs": [
-    {
-      "id": "cost-1",
-      "type": "Proxy",
-      "value": 92.5,
-      "date": "2026-07-16",
-      "owner": "Daniel Bomfim",
-      "note": "Pacote diário de proxies rotativas"
-    },
-    {
-      "id": "cost-2",
-      "type": "SMS",
-      "value": 38,
-      "date": "2026-07-16",
-      "owner": "Daniel Bomfim",
-      "note": "Recarga de validação dos operadores"
-    },
-    {
-      "id": "cost-3",
-      "type": "VPS",
-      "value": 168,
-      "date": "2026-07-13",
-      "owner": "Daniel Bomfim",
-      "note": "Servidor do ciclo principal"
-    },
-    {
-      "id": "cost-4",
-      "type": "Postagem",
-      "value": 124,
-      "date": "2026-07-12",
-      "owner": "Daniel Bomfim",
-      "note": "Criativos patrocinados para reposição"
-    }
+    { "category": "Marketing", "supplier": "Contabilidade Y", "description": "Fatura 1", "value": 15148, "date": "2026-07-02", "method": "TED", "status": "vencido" },
+    { "category": "Salários", "supplier": "AWS", "description": "Fatura 2", "value": 3563, "date": "2026-07-11", "method": "Cartão", "status": "pago" },
+    { "category": "Salários", "supplier": "Google Ads", "description": "Fatura 3", "value": 28484, "date": "2026-07-13", "method": "TED", "status": "vencido" },
+    { "category": "Software", "supplier": "Notion", "description": "Fatura 4", "value": 20742, "date": "2026-07-12", "method": "PIX", "status": "vencido" },
+    { "category": "Infra", "supplier": "Consultoria X", "description": "Fatura 5", "value": 35671, "date": "2026-07-12", "method": "Boleto", "status": "pago" },
+    { "category": "Salários", "supplier": "Contabilidade Y", "description": "Fatura 6", "value": 4106, "date": "2026-07-05", "method": "Boleto", "status": "vencido" },
+    { "category": "Impostos", "supplier": "Cloudflare", "description": "Fatura 7", "value": 22878, "date": "2026-07-08", "method": "PIX", "status": "vencido" },
+    { "category": "Serviços", "supplier": "Cloudflare", "description": "Fatura 8", "value": 22821, "date": "2026-07-12", "method": "PIX", "status": "vencido" },
+    { "category": "Salários", "supplier": "GitHub", "description": "Fatura 9", "value": 17769, "date": "2026-07-09", "method": "Cartão", "status": "vencido" },
+    { "category": "Infra", "supplier": "AWS", "description": "Fatura 10", "value": 21555, "date": "2026-07-03", "method": "PIX", "status": "pago" },
+    { "category": "Marketing", "supplier": "Meta Ads", "description": "Fatura 11", "value": 26418, "date": "2026-07-14", "method": "PIX", "status": "pendente" }
   ],
-  "pixKeys": [
-    {
-      "id": "pix-1",
-      "alias": "Conta principal",
-      "key": "gs-control@pix.com",
-      "bank": "Nubank",
-      "owner": "Daniel Bomfim",
-      "usage": "alto giro",
-      "status": "Ativa"
-    },
-    {
-      "id": "pix-2",
-      "alias": "Conta reserva",
-      "key": "11.222.333/0001-42",
-      "bank": "Inter",
-      "owner": "Daniel Bomfim",
-      "usage": "contingência",
-      "status": "Ativa"
-    },
-    {
-      "id": "pix-3",
-      "alias": "Conta triagem",
-      "key": "+55 11 99999-1200",
-      "bank": "Santander",
-      "owner": "Daniel Bomfim",
-      "usage": "teste e distribuição",
-      "status": "Em revisão"
-    }
+  "pix": [
+    { "id": "pix-1", "alias": "Conta principal", "key": "pix@gscontrol.com", "bank": "Nubank", "owner": "Daniel Bomfim", "usage": "alto giro", "status": "ativa" },
+    { "id": "pix-2", "alias": "Conta reserva", "key": "11.222.333/0001-42", "bank": "Inter", "owner": "Daniel Bomfim", "usage": "contingência", "status": "ativa" },
+    { "id": "pix-3", "alias": "Conta triagem", "key": "+55 11 99999-1200", "bank": "Santander", "owner": "Daniel Bomfim", "usage": "alto giro", "status": "revisão" }
   ],
   "pixPolicies": [
     "Separar chaves por finalidade reduz risco de bloqueio operacional.",
     "Evitar concentrar grandes volumes na mesma chave por muitas horas seguidas.",
-    "Revisar bancos de apoio antes de picos noturnos e validar status das contas."
+    "Revisar bancos de apoio antes dos picos noturnos."
   ],
-  "affiliates": [
-    {
-      "name": "Canal Aurora",
-      "channel": "Telegram",
-      "share": 22,
-      "focus": "tráfego quente",
-      "status": "Ativo"
-    },
-    {
-      "name": "Lume Ads",
-      "channel": "Instagram",
-      "share": 15,
-      "focus": "criativos de conversão",
-      "status": "Ativo"
-    },
-    {
-      "name": "Grid Delta",
-      "channel": "WhatsApp",
-      "share": 9,
-      "focus": "reativação segmentada",
-      "status": "Em revisão"
-    }
+  "remessas": [
+    { "id": "REM-4820", "operator": "Lucas Almeida", "network": "Alpha Network", "platform": "Fortuna Pro", "value": 48210, "roi": 216, "status": "concluida", "source": "Nubank", "target": "Santander", "date": "2026-07-16", "note": "Fechamento premium manhã" },
+    { "id": "REM-4821", "operator": "Mariana Costa", "network": "Nexus Prime", "platform": "BetX", "value": 18990, "roi": 112, "status": "processando", "source": "Inter", "target": "Itaú", "date": "2026-07-16", "note": "Aguardando confirmação" },
+    { "id": "REM-4822", "operator": "Pedro Henrique", "network": "Vortex", "platform": "PlayCore", "value": 12670, "roi": 48, "status": "pendente", "source": "C6", "target": "Inter", "date": "2026-07-15", "note": "Fila de aprovação" },
+    { "id": "REM-4823", "operator": "Ana Beatriz", "network": "Quantum", "platform": "MaxWin", "value": 23120, "roi": 165, "status": "concluida", "source": "PicPay", "target": "Bradesco", "date": "2026-07-14", "note": "Remessa noturna" }
   ],
-  "operatorPolicies": [
-    {
-      "title": "Disciplina de janela",
-      "description": "Cada operador deve respeitar o intervalo operacional previsto para reduzir estresse de conta."
-    },
-    {
-      "title": "Rotina de reporte",
-      "description": "Toda meta fechada precisa ser reportada no mesmo bloco de tempo para manter o painel confiável."
-    },
-    {
-      "title": "Redistribuição de rede",
-      "description": "Rede em alerta só recebe novo volume após duas janelas consecutivas de estabilidade."
-    }
-  ],
-  "alerts": [
-    {
-      "title": "Custo de criativo acima da média",
-      "body": "A categoria Postagem subiu no comparativo semanal e merece reavaliação de retorno.",
-      "level": "Atenção",
-      "tone": "alert"
-    },
-    {
-      "title": "Atlas Prime em destaque",
-      "body": "Melhor rede do ciclo com score 92 e aprovação de 88%.",
-      "level": "Saudável",
-      "tone": "good"
-    },
-    {
-      "title": "Titan Flow exige cautela",
-      "body": "Rede com menor score da base atual e risco acima do restante da operação.",
-      "level": "Crítico",
-      "tone": "danger"
-    }
-  ],
-  "activity": [
-    {
-      "title": "Operação REM-9802 em processamento",
-      "description": "Ana Beatriz segue conciliando uma operação de médio porte.",
-      "time": "há 6 min"
-    },
-    {
-      "title": "Nova meta fechada em Atlas Prime",
-      "description": "Rodrigo encerrou mais um ciclo acima do esperado.",
-      "time": "há 18 min"
-    },
-    {
-      "title": "Custo de proxy atualizado",
-      "description": "Lançamento diário de proxy salvo na base local.",
-      "time": "há 29 min"
-    },
-    {
-      "title": "Lote noturno arquivado",
-      "description": "Operação concluída com registro integral no histórico financeiro.",
-      "time": "há 1 h"
-    }
-  ],
-  "governance": {
-    "maintenance": false,
-    "lastBackup": "16/07/2026, 09:58",
-    "checks": [
-      {
-        "title": "Persistência local",
-        "body": "Base salva corretamente em localStorage e pronta para exportação em JSON.",
-        "status": "OK",
-        "tone": "good"
-      },
-      {
-        "title": "Publicação no GitHub",
-        "body": "Projeto conectado ao GitHub Pages com branch principal sincronizada.",
-        "status": "OK",
-        "tone": "good"
-      },
-      {
-        "title": "Modo manutenção",
-        "body": "Desativado. O painel segue em operação normal para uso interno.",
-        "status": "Normal",
-        "tone": "alert"
-      }
-    ]
-  }
+  "reports": [
+    { "title": "Snapshot financeiro semanal", "body": "Base consolidada com receita, custo, lucro e margem por janela de operação." },
+    { "title": "Desempenho por rede", "body": "Comparativo entre redes ativas, ROI, progresso de meta e volume distribuído." },
+    { "title": "Produtividade por operador", "body": "Leitura rápida de performance individual, últimas atividades e risco operacional." }
+  ]
 }
